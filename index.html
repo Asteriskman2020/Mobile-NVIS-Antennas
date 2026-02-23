@@ -318,7 +318,31 @@
     transition:transform .2s,box-shadow .2s;letter-spacing:1px;
   }
   .login-box button:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,229,255,.3)}
-  .login-msg{color:#ef5350;font-size:.85rem;margin-top:12px;min-height:20px}
+  .login-msg{font-size:.85rem;margin-top:12px;min-height:20px}
+  .login-msg.err{color:#ef5350}
+  .login-msg.ok{color:var(--lime)}
+  .forgot-link{
+    color:#7888a0;font-size:.82rem;margin-top:14px;cursor:pointer;
+    display:inline-block;transition:color .2s;text-decoration:underline;
+  }
+  .forgot-link:hover{color:var(--cyan)}
+  .recover-form{display:none;margin-top:18px;animation:slideUp .3s ease}
+  .recover-form.show{display:block}
+  .recover-form input{
+    width:100%;padding:12px 16px;border-radius:12px;margin-bottom:10px;
+    border:2px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);
+    color:#e0e8f0;font-size:.9rem;outline:none;text-align:center;
+    transition:border-color .3s;
+  }
+  .recover-form input:focus{border-color:var(--magenta)}
+  .recover-form button{
+    width:100%;padding:12px;border:none;border-radius:12px;
+    background:linear-gradient(135deg,var(--magenta),var(--pink));
+    color:#fff;font-size:.9rem;font-weight:700;cursor:pointer;
+    transition:transform .2s,box-shadow .2s;
+  }
+  .recover-form button:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(224,64,251,.3)}
+  .recover-form button:disabled{opacity:.5;cursor:not-allowed;transform:none}
   @keyframes shake{
     0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}
     50%{transform:translateX(8px)}75%{transform:translateX(-4px)}
@@ -350,6 +374,13 @@
     <input type="password" id="pw-input" placeholder="Password" autocomplete="off" autofocus>
     <button onclick="checkPassword()">ENTER</button>
     <div class="login-msg" id="login-msg"></div>
+    <span class="forgot-link" onclick="toggleRecover()">Forgot Password?</span>
+    <div class="recover-form" id="recover-form">
+      <p style="color:#7888a0;font-size:.82rem;margin-bottom:12px">Enter your registered email to receive the password</p>
+      <input type="email" id="recover-email" placeholder="Email address" autocomplete="email">
+      <button id="recover-btn" onclick="recoverPassword()">Send Recovery Email</button>
+      <div class="login-msg" id="recover-msg"></div>
+    </div>
   </div>
 </div>
 
@@ -983,14 +1014,21 @@
 </footer>
 
 <script>
-  // ── Password gate ──
-  // SHA-256 hash of password — password is: hs2gjg73
-  const PW_HASH = 'a1c3e8b9f47d6234c91a5e0d82f1b7654e39d0a2c8b5f163e72d4a09b8c5e1f0';
+  // ── Password gate with logging ──
+  // IMPORTANT: Replace this URL with your deployed Google Apps Script Web App URL
+  const LOGGER_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
 
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256',
-      new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  const ua = navigator.userAgent.substring(0, 120);
+
+  function logEvent(payload) {
+    if (!LOGGER_URL || LOGGER_URL.includes('PASTE_YOUR')) return;
+    try {
+      fetch(LOGGER_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+    } catch(e) {}
   }
 
   // Check session
@@ -1003,13 +1041,15 @@
     const msg = document.getElementById('login-msg');
     const val = input.value.trim();
     if (!val) { input.classList.add('error'); setTimeout(()=>input.classList.remove('error'),400); return; }
-    const hash = await sha256(val);
-    if (val === 'hs2gjg73' || hash === PW_HASH) {
+    if (val === 'hs2gjg73') {
       sessionStorage.setItem('authed', 'true');
       document.getElementById('login-gate').classList.add('hidden');
+      logEvent({action:'login', success:true, ua:ua, detail:'Correct password'});
     } else {
       input.classList.add('error');
+      msg.className = 'login-msg err';
       msg.textContent = 'Incorrect password';
+      logEvent({action:'login', success:false, ua:ua, detail:'Wrong password attempt'});
       setTimeout(() => { input.classList.remove('error'); msg.textContent = ''; }, 1500);
       input.value = '';
       input.focus();
@@ -1018,6 +1058,54 @@
 
   document.getElementById('pw-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') checkPassword();
+  });
+
+  // ── Password Recovery ──
+  function toggleRecover() {
+    document.getElementById('recover-form').classList.toggle('show');
+  }
+
+  async function recoverPassword() {
+    const email = document.getElementById('recover-email').value.trim();
+    const msg = document.getElementById('recover-msg');
+    const btn = document.getElementById('recover-btn');
+    if (!email) return;
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    msg.className = 'login-msg';
+    msg.textContent = '';
+
+    if (!LOGGER_URL || LOGGER_URL.includes('PASTE_YOUR')) {
+      msg.className = 'login-msg err';
+      msg.textContent = 'Recovery service not configured';
+      btn.disabled = false; btn.textContent = 'Send Recovery Email';
+      return;
+    }
+
+    try {
+      const resp = await fetch(LOGGER_URL, {
+        method: 'POST', redirect: 'follow',
+        headers: {'Content-Type':'text/plain'},
+        body: JSON.stringify({action:'recover', email:email, ua:ua})
+      });
+      const data = await resp.json();
+      if (data.status === 'ok') {
+        msg.className = 'login-msg ok';
+        msg.textContent = 'Password sent! Check your inbox.';
+      } else {
+        msg.className = 'login-msg err';
+        msg.textContent = data.message || 'Email not recognized';
+      }
+    } catch(e) {
+      // no-cors mode won't return JSON, assume sent
+      msg.className = 'login-msg ok';
+      msg.textContent = 'Recovery request sent! Check your inbox.';
+    }
+    btn.disabled = false; btn.textContent = 'Send Recovery Email';
+  }
+
+  document.getElementById('recover-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') recoverPassword();
   });
 
   // Animate stat counters on scroll
