@@ -255,6 +255,32 @@
   }
   .lightbox-close:hover{opacity:1}
 
+  /* ── Repos grid ── */
+  .repos{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;margin-top:24px}
+  .repo{
+    background:var(--card);border-radius:16px;padding:20px 22px;
+    border:1px solid rgba(255,255,255,.06);
+    transition:transform .3s,box-shadow .3s,border-color .3s;
+    text-decoration:none;display:block;position:relative;overflow:hidden;
+  }
+  .repo:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4);border-color:rgba(255,255,255,.15)}
+  .repo-head{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .repo-icon{font-size:20px}
+  .repo-name{font-size:1rem;font-weight:700;color:#e0e8f0}
+  .repo-badge{
+    font-size:.65rem;padding:2px 8px;border-radius:99px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.5px;margin-left:auto;
+  }
+  .repo-badge.public{background:rgba(118,255,3,.15);color:var(--lime)}
+  .repo-badge.private{background:rgba(255,64,129,.15);color:var(--pink)}
+  .repo-desc{font-size:.82rem;color:#7888a0;line-height:1.4;margin-bottom:10px}
+  .repo-meta{display:flex;align-items:center;gap:14px;font-size:.75rem;color:#556}
+  .repo-lang{display:flex;align-items:center;gap:4px}
+  .repo-lang-dot{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .repo-cat{
+    position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;
+  }
+
   /* ── Password gate ── */
   #login-gate{
     position:fixed;inset:0;z-index:99999;
@@ -346,6 +372,7 @@
   <a class="pill" href="#antenna">Antennas</a>
   <a class="pill" href="#timeline">Timeline</a>
   <a class="pill" href="#posters">Posters</a>
+  <a class="pill" href="#repos">Repositories</a>
 </nav>
 
 <main>
@@ -688,6 +715,254 @@
   <div class="lightbox" id="lightbox" onclick="closeLightbox()">
     <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
     <img id="lightbox-img" src="" alt="Poster full view">
+  </div>
+
+  <!-- All Repositories -->
+  <div class="section-title" id="repos">
+    <span class="dot" style="background:var(--coral)"></span>
+    All GitHub Repositories
+  </div>
+
+  <div class="stats" style="margin-bottom:24px">
+    <div class="stat"><div class="stat-num" style="color:var(--cyan)">32</div><div class="stat-label">Total Repos</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--lime)">17</div><div class="stat-label">Public</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--pink)">15</div><div class="stat-label">Private</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--orange)">6</div><div class="stat-label">Categories</div></div>
+  </div>
+
+  <div class="repos">
+
+    <!-- ─── Antennas & RF ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/Mobile-NVIS-Antennas" target="_blank">
+      <div class="repo-cat" style="background:var(--orange)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128225;</span><span class="repo-name">Mobile-NVIS-Antennas</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Mobile NVIS Antenna Designs for 80m/40m/20m — Magnetic Loop on Vehicle Roof</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#3572A5"></span>Python</span><span>Updated Feb 23</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/NVIS-Antennas" target="_blank">
+      <div class="repo-cat" style="background:var(--orange)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128225;</span><span class="repo-name">NVIS-Antennas</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">NVIS (Near-Vertical Incidence Skywave) antenna designs for HF regional coverage</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#e34c26"></span>HTML</span><span>Updated Feb 19</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Magnetic-Loop-Antennas" target="_blank">
+      <div class="repo-cat" style="background:var(--orange)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128225;</span><span class="repo-name">Magnetic-Loop-Antennas</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Magnetic loop antenna designs (160m-6m) — efficiency-optimized with full engineering calculations</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#e34c26"></span>HTML</span><span>Updated Feb 18</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Antenna-Designs" target="_blank">
+      <div class="repo-cat" style="background:var(--orange)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128752;</span><span class="repo-name">Antenna-Designs</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">PCB Antenna Designs for IoT (920MHz HaLow, Sub-GHz)</div>
+      <div class="repo-meta"><span>Updated Feb 1</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/RF-Filters" target="_blank">
+      <div class="repo-cat" style="background:var(--orange)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128296;</span><span class="repo-name">RF-Filters</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">RF Filter designs — LPF/BPF for HF bands</div>
+      <div class="repo-meta"><span>Updated Feb 1</span></div>
+    </a>
+
+    <!-- ─── Weather & Sensors ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/Weather-Station" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#127748;</span><span class="repo-name">Weather-Station</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Weather station projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 1</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Weather-Station-Decoder" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#127748;</span><span class="repo-name">Weather-Station-Decoder</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Weather station signal decoder</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 1</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Weather" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#127777;&#65039;</span><span class="repo-name">Weather</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">Weather projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 11</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/AIR-Quality-Measurements" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128168;</span><span class="repo-name">AIR-Quality-Measurements</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">Air quality measurements using PMS5003 and SCD40 sensors</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 2</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Air-Quality-Egg" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128168;</span><span class="repo-name">Air-Quality-Egg</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Stationary Air Quality Sensor Network</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#bd79d1"></span>Arduino</span><span>Updated Jan 26</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Lightning-AS3935" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#9889;</span><span class="repo-name">Lightning-AS3935</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">AS3935 Lightning Detector Projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 31</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/BMP280-OLED" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#127777;&#65039;</span><span class="repo-name">BMP280-OLED</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">BMP280 sensor with OLED display</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 25</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Citizen-Sensor" target="_blank">
+      <div class="repo-cat" style="background:var(--teal)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128200;</span><span class="repo-name">Citizen-Sensor</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">DIY data collection system — stationary (ethernet) and mobile (bluetooth) versions</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#bd79d1"></span>Arduino</span><span>Updated Jan 26</span></div>
+    </a>
+
+    <!-- ─── Displays & NTP ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/NTP" target="_blank">
+      <div class="repo-cat" style="background:var(--cyan)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128344;</span><span class="repo-name">NTP</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">NTP Clock projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 1</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/LiLyGO_T_Display_S3_NTP" target="_blank">
+      <div class="repo-cat" style="background:var(--cyan)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128344;</span><span class="repo-name">LiLyGO_T_Display_S3_NTP</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">NTP Clock Display for LilyGo T-Display-S3 (ESP32-S3)</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 25</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/CrowDisplay" target="_blank">
+      <div class="repo-cat" style="background:var(--cyan)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128187;</span><span class="repo-name">CrowDisplay</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">CrowPanel Display Projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 2</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/LCD-Displays" target="_blank">
+      <div class="repo-cat" style="background:var(--cyan)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128187;</span><span class="repo-name">LCD-Displays</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">LCD Display Projects (ST7789, etc.)</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 31</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/E-Paper" target="_blank">
+      <div class="repo-cat" style="background:var(--cyan)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128240;</span><span class="repo-name">E-Paper</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">Waveshare E-Paper display demos for ESP8266/ESP32</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 25</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/ROUND-Touch-Display" target="_blank">
+      <div class="repo-cat" style="background:var(--cyan)"></div>
+      <div class="repo-head"><span class="repo-icon">&#9200;</span><span class="repo-name">ROUND-Touch-Display</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">ESP32-C3 Round Touch Display — NTP Clock with OTA, WiFi Manager, MQTT</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 25</span></div>
+    </a>
+
+    <!-- ─── Communication & Protocols ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/HALLOW" target="_blank">
+      <div class="repo-cat" style="background:var(--magenta)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128268;</span><span class="repo-name">HALLOW</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">ESP32-C6 HT-HC01P WiFi HaLow Projects</div>
+      <div class="repo-meta"><span>Updated Feb 1</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/ESPNOW" target="_blank">
+      <div class="repo-cat" style="background:var(--magenta)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128246;</span><span class="repo-name">ESPNOW</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">ESP-NOW wireless communication projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 25</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/ESP32_CAN_TX_RX_DEMO" target="_blank">
+      <div class="repo-cat" style="background:var(--magenta)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128663;</span><span class="repo-name">ESP32_CAN_TX_RX_DEMO</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">ESP32 CAN TX/RX Demo with ESP-NOW wireless communication</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 25</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Microwave-Distance" target="_blank">
+      <div class="repo-cat" style="background:var(--magenta)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128225;</span><span class="repo-name">Microwave-Distance</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Microwave radar distance and presence sensors</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 30</span></div>
+    </a>
+
+    <!-- ─── Power & Control ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/PZEM" target="_blank">
+      <div class="repo-cat" style="background:var(--gold)"></div>
+      <div class="repo-head"><span class="repo-icon">&#9889;</span><span class="repo-name">PZEM</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">PZEM Power Meter Projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 31</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Fingerprint" target="_blank">
+      <div class="repo-cat" style="background:var(--gold)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128286;</span><span class="repo-name">Fingerprint</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Fingerprint sensor projects</div>
+      <div class="repo-meta"><span>Updated Jan 31</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/GPS" target="_blank">
+      <div class="repo-cat" style="background:var(--gold)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128205;</span><span class="repo-name">GPS</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">GPS module projects</div>
+      <div class="repo-meta"><span>Updated Jan 31</span></div>
+    </a>
+
+    <!-- ─── MCU Platforms ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/ESP8266" target="_blank">
+      <div class="repo-cat" style="background:var(--lime)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128204;</span><span class="repo-name">ESP8266</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">ESP8266 Projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 28</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/ESP32_input_LED" target="_blank">
+      <div class="repo-cat" style="background:var(--lime)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128161;</span><span class="repo-name">ESP32_input_LED</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">ESP32 input LED projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Feb 1</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Heltech" target="_blank">
+      <div class="repo-cat" style="background:var(--lime)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128204;</span><span class="repo-name">Heltech</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Heltec Wireless Paper Projects</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jan 28</span></div>
+    </a>
+
+    <!-- ─── Other ─── -->
+    <a class="repo" href="https://github.com/Asteriskman2020/Common-Emitter-Audio-Circuit" target="_blank">
+      <div class="repo-cat" style="background:var(--blue)"></div>
+      <div class="repo-head"><span class="repo-icon">&#127925;</span><span class="repo-name">Common-Emitter-Audio-Circuit</span><span class="repo-badge public">Public</span></div>
+      <div class="repo-desc">Common Emitter Audio Amplifier Circuits — CE and CC designs for various transistors</div>
+      <div class="repo-meta"><span>Updated Jan 28</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/Researchs-KMUTT" target="_blank">
+      <div class="repo-cat" style="background:var(--blue)"></div>
+      <div class="repo-head"><span class="repo-icon">&#128218;</span><span class="repo-name">Researchs-KMUTT</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">KMUTT Research projects</div>
+      <div class="repo-meta"><span>Updated Feb 11</span></div>
+    </a>
+
+    <a class="repo" href="https://github.com/Asteriskman2020/https-github.com-pschatzmann-ESP32-A2DP" target="_blank">
+      <div class="repo-cat" style="background:var(--blue)"></div>
+      <div class="repo-head"><span class="repo-icon">&#127911;</span><span class="repo-name">ESP32-A2DP</span><span class="repo-badge private">Private</span></div>
+      <div class="repo-desc">ESP32 Bluetooth A2DP audio library (fork)</div>
+      <div class="repo-meta"><span class="repo-lang"><span class="repo-lang-dot" style="background:#00979D"></span>C++</span><span>Updated Jul 2024</span></div>
+    </a>
+
   </div>
 
 </main>
