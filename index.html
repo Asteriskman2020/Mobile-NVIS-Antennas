@@ -1019,9 +1019,12 @@
   const LOGGER_URL = 'https://script.google.com/macros/s/AKfycbyWnkB06w9UlziTq88ZRle1peEHEj46M0R9wvsOEvqpmDRD3GNmLYdJPRyvKqYoyZEm3A/exec';
 
   const ua = navigator.userAgent.substring(0, 120);
+  let clientIP = 'unknown';
+  fetch('https://api.ipify.org?format=json').then(r=>r.json()).then(d=>{clientIP=d.ip;}).catch(()=>{});
 
   function logEvent(payload) {
     if (!LOGGER_URL || LOGGER_URL.includes('PASTE_YOUR')) return;
+    payload.ip = clientIP;
     try {
       fetch(LOGGER_URL, {
         method: 'POST', mode: 'no-cors',
@@ -1086,7 +1089,7 @@
       const resp = await fetch(LOGGER_URL, {
         method: 'POST', redirect: 'follow',
         headers: {'Content-Type':'text/plain'},
-        body: JSON.stringify({action:'recover', email:email, ua:ua})
+        body: JSON.stringify({action:'recover', email:email, ua:ua, ip:clientIP})
       });
       const data = await resp.json();
       if (data.status === 'ok') {
