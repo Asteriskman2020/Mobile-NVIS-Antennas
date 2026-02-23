@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HS0ZNR Project Gallery</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#0a0e1a;--card:#121830;--glass:rgba(255,255,255,.06);
+    --cyan:#00e5ff;--magenta:#e040fb;--orange:#ff9100;
+    --lime:#76ff03;--gold:#ffd600;--coral:#ff6e40;
+    --blue:#448aff;--teal:#1de9b6;--pink:#ff4081;
+  }
+  @keyframes gradientShift{
+    0%{background-position:0% 50%}
+    50%{background-position:100% 50%}
+    100%{background-position:0% 50%}
+  }
+  @keyframes float{
+    0%,100%{transform:translateY(0)}
+    50%{transform:translateY(-12px)}
+  }
+  @keyframes pulse{
+    0%,100%{opacity:.6;transform:scale(1)}
+    50%{opacity:1;transform:scale(1.05)}
+  }
+  @keyframes slideUp{
+    from{opacity:0;transform:translateY(40px)}
+    to{opacity:1;transform:translateY(0)}
+  }
+  @keyframes rotateSlow{
+    from{transform:rotate(0deg)}to{transform:rotate(360deg)}
+  }
+  @keyframes shimmer{
+    0%{background-position:-200% 0}
+    100%{background-position:200% 0}
+  }
+  body{
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    background:var(--bg);color:#e0e8f0;overflow-x:hidden;
+    min-height:100vh;
+  }
+
+  /* ── Animated background orbs ── */
+  .bg-orbs{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+  .orb{position:absolute;border-radius:50%;filter:blur(80px);opacity:.18;animation:float 8s ease-in-out infinite}
+  .orb:nth-child(1){width:500px;height:500px;background:var(--cyan);top:-10%;left:-5%;animation-delay:0s}
+  .orb:nth-child(2){width:600px;height:600px;background:var(--magenta);top:30%;right:-10%;animation-delay:2s;animation-duration:10s}
+  .orb:nth-child(3){width:450px;height:450px;background:var(--orange);bottom:-5%;left:30%;animation-delay:4s;animation-duration:12s}
+  .orb:nth-child(4){width:350px;height:350px;background:var(--lime);top:60%;left:5%;animation-delay:1s;animation-duration:9s}
+  .orb:nth-child(5){width:400px;height:400px;background:var(--pink);top:10%;right:30%;animation-delay:3s;animation-duration:11s}
+
+  /* ── Header ── */
+  header{
+    position:relative;z-index:1;text-align:center;
+    padding:60px 20px 40px;
+    background:linear-gradient(135deg,#0d1b2a 0%,#1b2a4a 40%,#2a1a3e 70%,#0d1b2a 100%);
+    background-size:300% 300%;animation:gradientShift 12s ease infinite;
+    border-bottom:2px solid rgba(255,255,255,.08);
+  }
+  header::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--orange),var(--lime),var(--cyan));
+    background-size:200% 100%;animation:shimmer 3s linear infinite;
+  }
+  .logo{
+    display:inline-flex;align-items:center;gap:16px;margin-bottom:12px;
+  }
+  .logo-icon{
+    width:64px;height:64px;border-radius:16px;
+    background:linear-gradient(135deg,var(--cyan),var(--blue));
+    display:flex;align-items:center;justify-content:center;
+    font-size:28px;font-weight:900;color:#fff;
+    box-shadow:0 0 30px rgba(0,229,255,.3);
+    animation:pulse 3s ease-in-out infinite;
+  }
+  h1{
+    font-size:clamp(2rem,5vw,3.5rem);font-weight:900;
+    background:linear-gradient(90deg,var(--cyan),var(--magenta),var(--orange),var(--gold));
+    background-clip:text;-webkit-background-clip:text;color:transparent;
+    background-size:200% auto;animation:shimmer 4s linear infinite;
+    letter-spacing:-1px;
+  }
+  .subtitle{font-size:1.15rem;color:#8899aa;margin-top:8px;letter-spacing:2px;text-transform:uppercase}
+
+  /* ── Nav pills ── */
+  nav{
+    position:sticky;top:0;z-index:100;
+    display:flex;justify-content:center;flex-wrap:wrap;gap:8px;
+    padding:14px 20px;
+    background:rgba(10,14,26,.85);backdrop-filter:blur(16px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .pill{
+    padding:8px 20px;border-radius:99px;border:1.5px solid rgba(255,255,255,.12);
+    background:var(--glass);color:#b0c0d0;font-size:.85rem;font-weight:600;
+    cursor:pointer;transition:all .3s;text-decoration:none;
+  }
+  .pill:hover,.pill.active{
+    border-color:var(--cyan);color:#fff;
+    background:rgba(0,229,255,.12);
+    box-shadow:0 0 20px rgba(0,229,255,.15);
+  }
+
+  /* ── Main ── */
+  main{position:relative;z-index:1;max-width:1400px;margin:0 auto;padding:40px 20px 80px}
+
+  /* ── Section titles ── */
+  .section-title{
+    font-size:1.8rem;font-weight:800;margin:50px 0 24px;
+    display:flex;align-items:center;gap:14px;
+  }
+  .section-title .dot{
+    width:14px;height:14px;border-radius:50%;display:inline-block;
+    animation:pulse 2s ease-in-out infinite;
+  }
+
+  /* ── Stats row ── */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:40px}
+  .stat{
+    background:var(--card);border-radius:16px;padding:24px;text-align:center;
+    border:1px solid rgba(255,255,255,.06);
+    transition:transform .3s,box-shadow .3s;position:relative;overflow:hidden;
+  }
+  .stat::before{
+    content:'';position:absolute;top:0;left:0;right:0;height:3px;
+    border-radius:16px 16px 0 0;
+  }
+  .stat:nth-child(1)::before{background:var(--cyan)}
+  .stat:nth-child(2)::before{background:var(--magenta)}
+  .stat:nth-child(3)::before{background:var(--orange)}
+  .stat:nth-child(4)::before{background:var(--lime)}
+  .stat:nth-child(5)::before{background:var(--gold)}
+  .stat:nth-child(6)::before{background:var(--coral)}
+  .stat:hover{transform:translateY(-6px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+  .stat-num{font-size:2.5rem;font-weight:900;line-height:1}
+  .stat-label{font-size:.85rem;color:#7888a0;margin-top:6px;text-transform:uppercase;letter-spacing:1px}
+
+  /* ── Card grid ── */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px}
+  .card{
+    background:var(--card);border-radius:20px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.06);
+    transition:transform .3s,box-shadow .3s;
+    animation:slideUp .6s ease both;
+  }
+  .card:nth-child(1){animation-delay:.05s}
+  .card:nth-child(2){animation-delay:.1s}
+  .card:nth-child(3){animation-delay:.15s}
+  .card:nth-child(4){animation-delay:.2s}
+  .card:nth-child(5){animation-delay:.25s}
+  .card:nth-child(6){animation-delay:.3s}
+  .card:nth-child(7){animation-delay:.35s}
+  .card:nth-child(8){animation-delay:.4s}
+  .card:nth-child(9){animation-delay:.45s}
+  .card:hover{transform:translateY(-8px);box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .card-banner{
+    height:160px;position:relative;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .card-banner .emoji{font-size:64px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.4));animation:float 6s ease-in-out infinite}
+  .card-banner::after{
+    content:'';position:absolute;bottom:0;left:0;right:0;height:40px;
+    background:linear-gradient(transparent,var(--card));
+  }
+  .card-body{padding:20px 24px 24px}
+  .card-body h3{font-size:1.15rem;font-weight:700;margin-bottom:6px}
+  .card-body p{font-size:.9rem;color:#8899aa;line-height:1.5;margin-bottom:14px}
+  .tags{display:flex;flex-wrap:wrap;gap:6px}
+  .tag{
+    font-size:.72rem;padding:4px 10px;border-radius:99px;font-weight:600;
+    letter-spacing:.5px;text-transform:uppercase;
+  }
+
+  /* ── Band/frequency section ── */
+  .bands{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:24px}
+  .band{
+    border-radius:16px;padding:24px;position:relative;overflow:hidden;
+    border:1px solid rgba(255,255,255,.1);
+    transition:transform .3s;
+  }
+  .band:hover{transform:scale(1.03)}
+  .band h3{font-size:1.3rem;font-weight:800;margin-bottom:4px}
+  .band .freq{font-size:.95rem;opacity:.8}
+  .band .bar{
+    margin-top:12px;height:6px;border-radius:3px;
+    background:rgba(255,255,255,.15);overflow:hidden;
+  }
+  .band .bar-fill{height:100%;border-radius:3px;transition:width 1.5s ease}
+
+  /* ── Timeline ── */
+  .timeline{position:relative;padding-left:40px;margin-top:24px}
+  .timeline::before{
+    content:'';position:absolute;left:14px;top:0;bottom:0;width:3px;
+    background:linear-gradient(var(--cyan),var(--magenta),var(--orange),var(--lime));
+    border-radius:2px;
+  }
+  .tl-item{position:relative;margin-bottom:28px;animation:slideUp .5s ease both}
+  .tl-item:nth-child(1){animation-delay:.1s}
+  .tl-item:nth-child(2){animation-delay:.2s}
+  .tl-item:nth-child(3){animation-delay:.3s}
+  .tl-item:nth-child(4){animation-delay:.4s}
+  .tl-item:nth-child(5){animation-delay:.5s}
+  .tl-dot{
+    position:absolute;left:-33px;top:4px;width:16px;height:16px;
+    border-radius:50%;border:3px solid var(--bg);
+  }
+  .tl-item h4{font-size:1rem;font-weight:700}
+  .tl-item .tl-date{font-size:.8rem;color:#6678a0;margin-bottom:4px}
+  .tl-item p{font-size:.88rem;color:#8899aa;line-height:1.5}
+
+  /* ── Footer ── */
+  footer{
+    position:relative;z-index:1;text-align:center;
+    padding:40px 20px;
+    border-top:1px solid rgba(255,255,255,.06);
+  }
+  footer p{color:#556;font-size:.85rem}
+  .footer-colors{
+    display:flex;justify-content:center;gap:8px;margin-top:14px;
+  }
+  .footer-colors span{
+    width:24px;height:24px;border-radius:50%;display:inline-block;
+    transition:transform .3s;cursor:pointer;
+  }
+  .footer-colors span:hover{transform:scale(1.4)}
+
+  /* ── Responsive ── */
+  @media(max-width:600px){
+    header{padding:40px 16px 30px}
+    .cards{grid-template-columns:1fr}
+    .bands{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+
+<div class="bg-orbs">
+  <div class="orb"></div><div class="orb"></div><div class="orb"></div>
+  <div class="orb"></div><div class="orb"></div>
+</div>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">ZNR</div>
+  </div>
+  <h1>HS0ZNR Project Gallery</h1>
+  <p class="subtitle">Amateur Radio &bull; IoT &bull; Embedded Systems</p>
+</header>
+
+<nav>
+  <a class="pill active" href="#projects">Projects</a>
+  <a class="pill" href="#bands">Bands</a>
+  <a class="pill" href="#antenna">Antennas</a>
+  <a class="pill" href="#timeline">Timeline</a>
+</nav>
+
+<main>
+
+  <!-- Stats -->
+  <div class="stats" id="stats">
+    <div class="stat"><div class="stat-num" style="color:var(--cyan)">42</div><div class="stat-label">Projects</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--magenta)">12</div><div class="stat-label">MCU Boards</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--orange)">8</div><div class="stat-label">Antennas</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--lime)">6</div><div class="stat-label">Displays</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--gold)">3</div><div class="stat-label">Protocols</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--coral)">24/7</div><div class="stat-label">NTP Clocks</div></div>
+  </div>
+
+  <!-- Projects -->
+  <div class="section-title" id="projects">
+    <span class="dot" style="background:var(--cyan)"></span>
+    Projects
+  </div>
+  <div class="cards">
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#004d40,#00897b)">
+        <span class="emoji">&#128225;</span>
+      </div>
+      <div class="card-body">
+        <h3>NVIS 80m/40m Rectangular Loop</h3>
+        <p>Optimized dual-band NVIS magnetic loop antenna on sedan roof. 1.40&times;0.80 m Ag-Cu rectangular, 2-turn/1-turn relay-switched.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(0,229,255,.15);color:var(--cyan)">Antenna</span>
+          <span class="tag" style="background:rgba(118,255,3,.15);color:var(--lime)">HF</span>
+          <span class="tag" style="background:rgba(255,145,0,.15);color:var(--orange)">NVIS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#1a237e,#3949ab)">
+        <span class="emoji">&#128344;</span>
+      </div>
+      <div class="card-body">
+        <h3>NTP Clock &mdash; T-Display S3</h3>
+        <p>WiFi NTP clock on LilyGo T-Display S3 with colorful TFT display. Auto-sync, timezone support, bright AMOLED screen.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(224,64,251,.15);color:var(--magenta)">ESP32-S3</span>
+          <span class="tag" style="background:rgba(68,138,255,.15);color:var(--blue)">NTP</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#b71c1c,#e53935)">
+        <span class="emoji">&#9889;</span>
+      </div>
+      <div class="card-body">
+        <h3>PZEM-004T Power Monitor</h3>
+        <p>AC power monitoring with ESP-NOW broadcast. Voltage, current, power, energy, frequency &amp; PF on web portal with 2-hour auto reboot.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(255,214,0,.15);color:var(--gold)">ESP-NOW</span>
+          <span class="tag" style="background:rgba(255,110,64,.15);color:var(--coral)">Power</span>
+          <span class="tag" style="background:rgba(0,229,255,.15);color:var(--cyan)">MQTT</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#4a148c,#7b1fa2)">
+        <span class="emoji">&#127748;</span>
+      </div>
+      <div class="card-body">
+        <h3>E-Paper Weather Dashboard</h3>
+        <p>7.5" e-paper display showing NTP time, MQTT sensor data, and ESP-NOW weather. Ultra-low power, sunlight readable.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(29,233,182,.15);color:var(--teal)">E-Paper</span>
+          <span class="tag" style="background:rgba(224,64,251,.15);color:var(--magenta)">ESP8266</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#e65100,#ff9100)">
+        <span class="emoji">&#127777;&#65039;</span>
+      </div>
+      <div class="card-body">
+        <h3>BMP280 + SHT30 Sensor Hub</h3>
+        <p>Multi-sensor environmental monitoring: temperature, humidity, pressure, CO2. OLED display with MQTT telemetry.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(118,255,3,.15);color:var(--lime)">Sensors</span>
+          <span class="tag" style="background:rgba(68,138,255,.15);color:var(--blue)">I2C</span>
+          <span class="tag" style="background:rgba(0,229,255,.15);color:var(--cyan)">MQTT</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#1b5e20,#43a047)">
+        <span class="emoji">&#128663;</span>
+      </div>
+      <div class="card-body">
+        <h3>CAN Bus Gate Opener</h3>
+        <p>Ford vehicle CAN bus reader with ESP-NOW relay. Reads gear/speed data to auto-trigger gate opener via wireless bridge.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(255,64,129,.15);color:var(--pink)">CAN Bus</span>
+          <span class="tag" style="background:rgba(255,214,0,.15);color:var(--gold)">ESP-NOW</span>
+          <span class="tag" style="background:rgba(255,145,0,.15);color:var(--orange)">Auto</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#006064,#00acc1)">
+        <span class="emoji">&#128268;</span>
+      </div>
+      <div class="card-body">
+        <h3>WiFi HaLow (802.11ah) Link</h3>
+        <p>ESP32-C6 with HT-HC01P module. Long-range sub-GHz WiFi at 920 MHz. Morse firmware for amateur radio digital mode.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(0,229,255,.15);color:var(--cyan)">HaLow</span>
+          <span class="tag" style="background:rgba(29,233,182,.15);color:var(--teal)">920 MHz</span>
+          <span class="tag" style="background:rgba(224,64,251,.15);color:var(--magenta)">ESP32-C6</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#880e4f,#d81b60)">
+        <span class="emoji">&#9939;&#65039;</span>
+      </div>
+      <div class="card-body">
+        <h3>AS3935 Lightning Detector</h3>
+        <p>Franklin AS3935 lightning sensor with ESP32-C3/C6. Real-time storm distance, BMP280 pressure, OLED display.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(255,214,0,.15);color:var(--gold)">Lightning</span>
+          <span class="tag" style="background:rgba(255,110,64,.15);color:var(--coral)">SPI</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-banner" style="background:linear-gradient(135deg,#263238,#455a64)">
+        <span class="emoji">&#128296;</span>
+      </div>
+      <div class="card-body">
+        <h3>RF Filter Design Suite</h3>
+        <p>Python-generated LPF/BPF schematics for HF bands. 3rd/7th order Chebyshev, SMD &amp; through-hole, 3-30 MHz range.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(0,229,255,.15);color:var(--cyan)">RF</span>
+          <span class="tag" style="background:rgba(118,255,3,.15);color:var(--lime)">Python</span>
+          <span class="tag" style="background:rgba(68,138,255,.15);color:var(--blue)">Filters</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bands -->
+  <div class="section-title" id="bands">
+    <span class="dot" style="background:var(--magenta)"></span>
+    Amateur Radio Bands
+  </div>
+  <div class="bands">
+    <div class="band" style="background:linear-gradient(135deg,rgba(255,64,129,.12),rgba(255,64,129,.03));border-color:rgba(255,64,129,.25)">
+      <h3 style="color:var(--pink)">160 m</h3>
+      <div class="freq">1.800 &ndash; 2.000 MHz</div>
+      <div class="bar"><div class="bar-fill" style="width:15%;background:var(--pink)"></div></div>
+    </div>
+    <div class="band" style="background:linear-gradient(135deg,rgba(255,145,0,.12),rgba(255,145,0,.03));border-color:rgba(255,145,0,.25)">
+      <h3 style="color:var(--orange)">80 m</h3>
+      <div class="freq">3.500 &ndash; 4.000 MHz</div>
+      <div class="bar"><div class="bar-fill" style="width:52%;background:var(--orange)"></div></div>
+    </div>
+    <div class="band" style="background:linear-gradient(135deg,rgba(255,214,0,.12),rgba(255,214,0,.03));border-color:rgba(255,214,0,.25)">
+      <h3 style="color:var(--gold)">40 m</h3>
+      <div class="freq">7.000 &ndash; 7.300 MHz</div>
+      <div class="bar"><div class="bar-fill" style="width:85%;background:var(--gold)"></div></div>
+    </div>
+    <div class="band" style="background:linear-gradient(135deg,rgba(118,255,3,.12),rgba(118,255,3,.03));border-color:rgba(118,255,3,.25)">
+      <h3 style="color:var(--lime)">20 m</h3>
+      <div class="freq">14.000 &ndash; 14.350 MHz</div>
+      <div class="bar"><div class="bar-fill" style="width:95%;background:var(--lime)"></div></div>
+    </div>
+    <div class="band" style="background:linear-gradient(135deg,rgba(0,229,255,.12),rgba(0,229,255,.03));border-color:rgba(0,229,255,.25)">
+      <h3 style="color:var(--cyan)">10 m</h3>
+      <div class="freq">28.000 &ndash; 29.700 MHz</div>
+      <div class="bar"><div class="bar-fill" style="width:40%;background:var(--cyan)"></div></div>
+    </div>
+    <div class="band" style="background:linear-gradient(135deg,rgba(29,233,182,.12),rgba(29,233,182,.03));border-color:rgba(29,233,182,.25)">
+      <h3 style="color:var(--teal)">HaLow 920 MHz</h3>
+      <div class="freq">Sub-GHz WiFi (802.11ah)</div>
+      <div class="bar"><div class="bar-fill" style="width:65%;background:var(--teal)"></div></div>
+    </div>
+  </div>
+
+  <!-- Antenna Designs -->
+  <div class="section-title" id="antenna">
+    <span class="dot" style="background:var(--orange)"></span>
+    Antenna Designs
+  </div>
+  <div class="cards" style="grid-template-columns:repeat(auto-fill,minmax(380px,1fr))">
+    <div class="card" style="border-color:rgba(255,145,0,.2)">
+      <div class="card-banner" style="background:linear-gradient(135deg,#3e2723,#5d4037);height:120px">
+        <span class="emoji" style="font-size:52px">&#128225;</span>
+      </div>
+      <div class="card-body">
+        <h3 style="color:var(--orange)">Rectangular Mag Loop (NVIS)</h3>
+        <p>1.40&times;0.80 m Ag-Cu rectangular loop on sedan roof. Dual-band 80m/40m with relay-switched turns. Area = 1.12 m&sup2;. Efficiency: 5.2% (80m) / 23.6% (40m).</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(255,145,0,.15);color:var(--orange)">80m</span>
+          <span class="tag" style="background:rgba(255,214,0,.15);color:var(--gold)">40m</span>
+          <span class="tag" style="background:rgba(255,110,64,.15);color:var(--coral)">NVIS</span>
+          <span class="tag" style="background:rgba(0,229,255,.15);color:var(--cyan)">Mobile</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-color:rgba(118,255,3,.2)">
+      <div class="card-banner" style="background:linear-gradient(135deg,#1b5e20,#2e7d32);height:120px">
+        <span class="emoji" style="font-size:52px">&#128752;</span>
+      </div>
+      <div class="card-body">
+        <h3 style="color:var(--lime)">EFHW Multi-Band Wire</h3>
+        <p>End-Fed Half-Wave with 49:1 UnUn &amp; CMC. Covers 160m through 6m. Lightweight portable design with detailed winding specs.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(118,255,3,.15);color:var(--lime)">Multi-Band</span>
+          <span class="tag" style="background:rgba(224,64,251,.15);color:var(--magenta)">Portable</span>
+          <span class="tag" style="background:rgba(68,138,255,.15);color:var(--blue)">Wire</span>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="border-color:rgba(224,64,251,.2)">
+      <div class="card-banner" style="background:linear-gradient(135deg,#4a148c,#6a1b9a);height:120px">
+        <span class="emoji" style="font-size:52px">&#127760;</span>
+      </div>
+      <div class="card-body">
+        <h3 style="color:var(--magenta)">NVIS Car-Roof Whip (20m/40m)</h3>
+        <p>Optimized NVIS radiation patterns for vehicle rooftop. Simulation-verified 3D patterns for 20m, 40m, 80m bands.</p>
+        <div class="tags">
+          <span class="tag" style="background:rgba(224,64,251,.15);color:var(--magenta)">Simulation</span>
+          <span class="tag" style="background:rgba(29,233,182,.15);color:var(--teal)">3D Pattern</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="section-title" id="timeline">
+    <span class="dot" style="background:var(--lime)"></span>
+    Recent Activity
+  </div>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--cyan)"></div>
+      <div class="tl-date">2026-02-23</div>
+      <h4>Rectangular Antenna + Sedan 3D Poster</h4>
+      <p>Redesigned NVIS poster: SUV&rarr;sedan, circular&rarr;rectangular loop, metallic dark blue paint, improved 3D detail.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--magenta)"></div>
+      <div class="tl-date">2026-02-22</div>
+      <h4>ESP8266 NTP Clock with OLED SSD1306</h4>
+      <p>Added WiFi NTP clock for ESP8266 HW-630 board with 0.96" OLED display.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--orange)"></div>
+      <div class="tl-date">2026-02-21</div>
+      <h4>HaLow 920 MHz TX Demo</h4>
+      <p>ESP32-C6 HT-HC01P WiFi HaLow transmitter demo for long-range sub-GHz communication.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--lime)"></div>
+      <div class="tl-date">2026-02-20</div>
+      <h4>PZEM-004T Auto-Reboot + ESP-NOW</h4>
+      <p>AC power monitor with 2-hour auto reboot cycle and ESP-NOW wireless broadcast.</p>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot" style="background:var(--gold)"></div>
+      <div class="tl-date">2026-02-19</div>
+      <h4>PZEM MQTT Display on T-Display S3</h4>
+      <p>Power monitoring dashboard on LilyGo T-Display S3 with MQTT data subscription.</p>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>HS0ZNR &bull; Amateur Radio &amp; IoT Projects &bull; 2026</p>
+  <div class="footer-colors">
+    <span style="background:var(--cyan)"></span>
+    <span style="background:var(--magenta)"></span>
+    <span style="background:var(--orange)"></span>
+    <span style="background:var(--lime)"></span>
+    <span style="background:var(--gold)"></span>
+    <span style="background:var(--coral)"></span>
+    <span style="background:var(--blue)"></span>
+    <span style="background:var(--teal)"></span>
+    <span style="background:var(--pink)"></span>
+  </div>
+</footer>
+
+<script>
+  // Animate stat counters on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.stat-num').forEach(el => {
+          const text = el.textContent;
+          if (!/^\d+$/.test(text)) return;
+          const target = parseInt(text);
+          let current = 0;
+          const step = Math.max(1, Math.floor(target / 40));
+          const interval = setInterval(() => {
+            current += step;
+            if (current >= target) { current = target; clearInterval(interval); }
+            el.textContent = current;
+          }, 30);
+        });
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.3 });
+  observer.observe(document.getElementById('stats'));
+
+  // Animate band bars on scroll
+  const bandObs = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.querySelectorAll('.bar-fill').forEach(el => {
+          const w = el.style.width;
+          el.style.width = '0%';
+          requestAnimationFrame(() => requestAnimationFrame(() => el.style.width = w));
+        });
+        bandObs.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.bands').forEach(b => bandObs.observe(b));
+
+  // Smooth scroll for nav
+  document.querySelectorAll('.pill').forEach(pill => {
+    pill.addEventListener('click', e => {
+      e.preventDefault();
+      document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      const target = document.querySelector(pill.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Parallax orbs on mouse move
+  document.addEventListener('mousemove', e => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 20;
+    const y = (e.clientY / window.innerHeight - 0.5) * 20;
+    document.querySelectorAll('.orb').forEach((orb, i) => {
+      const factor = (i + 1) * 0.4;
+      orb.style.transform = `translate(${x * factor}px, ${y * factor}px)`;
+    });
+  });
+</script>
+</body>
+</html>
