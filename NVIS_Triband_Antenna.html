@@ -472,6 +472,26 @@
         This prevents Loop 2 from acting as a parasitic resonator that could detune Loop 1.
       </p>
     </div>
+
+    <!-- 3D Physical Loop Connection Rendering -->
+    <div style="margin-top:28px;">
+      <h3 style="color:var(--cyan-lt); margin-bottom:16px; font-size:1.2rem;">3D Physical Loop Connection</h3>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <div style="background:#060b14; border-radius:10px; border:1px solid #1a3058; padding:12px; text-align:center;">
+          <div style="color:var(--amber); font-weight:700; font-size:0.95rem; margin-bottom:8px;">80 m &mdash; 2-Turn Series (Relay ON)</div>
+          <canvas id="loop3d80" width="800" height="700" style="width:100%; max-width:400px; border-radius:8px;"></canvas>
+        </div>
+        <div style="background:#060b14; border-radius:10px; border:1px solid #1a3058; padding:12px; text-align:center;">
+          <div style="color:var(--green); font-weight:700; font-size:0.95rem; margin-bottom:8px;">40m / 20m &mdash; 1-Turn Only (Relay OFF)</div>
+          <canvas id="loop3d40" width="800" height="700" style="width:100%; max-width:400px; border-radius:8px;"></canvas>
+        </div>
+      </div>
+      <p style="color:var(--text2); font-size:0.82rem; text-align:center; margin-top:12px; line-height:1.6;">
+        View from front-above &mdash; Gap faces viewer &mdash;
+        Permanent jumper (gold) at back connects B&harr;C &mdash;
+        Arrows show RF current path
+      </p>
+    </div>
   </div>
 
   <!-- Full Schematic Diagram -->
@@ -1265,6 +1285,605 @@ drawPie('pie20', [189, 28.1, 8.0],   ['#66bb6a', '#ef5350', '#42a5f5']);
     card.appendChild(stats);
     row.appendChild(card);
   });
+})();
+</script>
+
+<!-- ════════ 3D Loop Connection Rendering ════════ -->
+<script>
+(function() {
+  // 3D projection: camera from front-above
+  const elev = 32 * Math.PI / 180;
+  const cosE = Math.cos(elev), sinE = Math.sin(elev);
+
+  function proj(x3, y3, z3) {
+    return {
+      x: x3,
+      y: -y3 * cosE + z3 * sinE,
+      z: y3 * sinE + z3 * cosE
+    };
+  }
+
+  function drawLoop3D(canvasId, mode) {
+    const can = document.getElementById(canvasId);
+    if (!can) return;
+    const ctx = can.getContext('2d');
+    const W = can.width, H = can.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Background
+    ctx.fillStyle = '#060b14';
+    ctx.fillRect(0, 0, W, H);
+
+    const cx = W / 2, cy = H * 0.46;
+    const S = 220;  // scale
+    const R = 0.85; // loop radius in 3D units
+    const loopSep = 0.18; // vertical separation
+    const gapAngle = 0.14; // half-gap in radians (~8°)
+    const gapDir = Math.PI / 2; // gap at front (facing viewer)
+    const tubeW = 9; // visual tube thickness
+
+    // is80m: relay ON = both loops active in series
+    // is40m: relay OFF = only Loop 1 active, Loop 2 shorted
+    const is80 = (mode === '80m');
+
+    // ── Ground/roof reference ──
+    ctx.beginPath();
+    for (let i = 0; i <= 80; i++) {
+      const a = (i / 80) * Math.PI * 2;
+      const p = proj(R * 1.5 * Math.cos(a), -0.08, R * 1.5 * Math.sin(a));
+      const sx = cx + p.x * S, sy = cy + p.y * S;
+      i === 0 ? ctx.moveTo(sx, sy) : ctx.lineTo(sx, sy);
+    }
+    ctx.fillStyle = 'rgba(55,71,79,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(55,71,79,0.3)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Roof label
+    const roofP = proj(0, -0.08, R * 1.55);
+    ctx.fillStyle = '#546e7a';
+    ctx.font = '18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Car Roof', cx + roofP.x * S, cy + roofP.y * S + 14);
+
+    // ── Generate loop segments ──
+    function makeLoopSegments(yOffset, startA, endA, numSeg) {
+      const segs = [];
+      for (let i = 0; i < numSeg; i++) {
+        const a0 = startA + (endA - startA) * i / numSeg;
+        const a1 = startA + (endA - startA) * (i + 1) / numSeg;
+        const x0 = R * Math.cos(a0), z0 = R * Math.sin(a0);
+        const x1 = R * Math.cos(a1), z1 = R * Math.sin(a1);
+        const p0 = proj(x0, yOffset, z0);
+        const p1 = proj(x1, yOffset, z1);
+        const midA = (a0 + a1) / 2;
+        const pm = proj(R * Math.cos(midA), yOffset, R * Math.sin(midA));
+        segs.push({
+          sx0: cx + p0.x * S, sy0: cy + p0.y * S,
+          sx1: cx + p1.x * S, sy1: cy + p1.y * S,
+          depth: pm.z, angle: midA, yOff: yOffset
+        });
+      }
+      return segs;
+    }
+
+    // Loop 1 (bottom) and Loop 2 (top) — with gap
+    const N = 120;
+    const gapS = gapDir + gapAngle;
+    const gapE = gapDir + (2 * Math.PI) - gapAngle;
+
+    const loop1Y = 0;
+    const loop2Y = loopSep;
+    const segs1 = makeLoopSegments(loop1Y, gapS, gapE, N);
+    const segs2 = makeLoopSegments(loop2Y, gapS, gapE, N);
+
+    // ── Jumper at back (connects B↔C, at angle = gapDir + π) ──
+    const backAngle = gapDir + Math.PI;
+    const jx = R * Math.cos(backAngle), jz = R * Math.sin(backAngle);
+    const jBot = proj(jx, loop1Y, jz);
+    const jTop = proj(jx, loop2Y, jz);
+    const jumperSeg = {
+      sx0: cx + jBot.x * S, sy0: cy + jBot.y * S,
+      sx1: cx + jTop.x * S, sy1: cy + jTop.y * S,
+      depth: jBot.z, isJumper: true
+    };
+
+    // ── Gap endpoint positions ──
+    // Left gap end: angle = gapDir + gapAngle (going CW)
+    // Right gap end: angle = gapDir - gapAngle
+    const gaLx = R * Math.cos(gapDir + gapAngle), gaLz = R * Math.sin(gapDir + gapAngle);
+    const gaRx = R * Math.cos(gapDir + 2*Math.PI - gapAngle), gaRz = R * Math.sin(gapDir + 2*Math.PI - gapAngle);
+
+    // Loop 1 endpoints: A (left gap), B (right gap = near back jumper side)
+    const pA = proj(gaLx, loop1Y, gaLz);
+    const pB = proj(gaRx, loop1Y, gaRz);
+    // Loop 2 endpoints: C (left gap = near jumper), D (right gap)
+    const pC = proj(gaLx, loop2Y, gaLz);
+    const pD = proj(gaRx, loop2Y, gaRz);
+
+    // ── Relay box at gap right side ──
+    const relayMidX = (cx + pB.x * S + cx + pD.x * S) / 2;
+    const relayMidY = (cy + pB.y * S + cy + pD.y * S) / 2;
+
+    // ── Cap at bottom center of gap ──
+    const capX = cx + proj(0, -0.06, R * 1.15).x * S;
+    const capY = cy + proj(0, -0.06, R * 1.15).y * S;
+
+    // ── Feed loop (small circle inside) ──
+    const feedSegs = [];
+    const feedR = 0.18;
+    const feedY = loopSep / 2;
+    for (let i = 0; i < 40; i++) {
+      const a0 = (i / 40) * Math.PI * 2;
+      const a1 = ((i + 1) / 40) * Math.PI * 2;
+      const p0 = proj(feedR * Math.cos(a0), feedY, feedR * Math.sin(a0));
+      const p1 = proj(feedR * Math.cos(a1), feedY, feedR * Math.sin(a1));
+      const pm = proj(feedR * Math.cos((a0+a1)/2), feedY, feedR * Math.sin((a0+a1)/2));
+      feedSegs.push({
+        sx0: cx + p0.x * S, sy0: cy + p0.y * S,
+        sx1: cx + p1.x * S, sy1: cy + p1.y * S,
+        depth: pm.z, isFeed: true
+      });
+    }
+
+    // ── Collect all segments and sort by depth ──
+    const all = [];
+    segs1.forEach(s => { s.loop = 1; all.push(s); });
+    segs2.forEach(s => { s.loop = 2; all.push(s); });
+    all.push(jumperSeg);
+    feedSegs.forEach(s => all.push(s));
+    all.sort((a, b) => a.depth - b.depth); // far first
+
+    // ── Draw all segments ──
+    all.forEach(s => {
+      if (s.isJumper) {
+        // Permanent jumper
+        ctx.beginPath();
+        ctx.moveTo(s.sx0, s.sy0);
+        ctx.lineTo(s.sx1, s.sy1);
+        ctx.strokeStyle = '#ffd600';
+        ctx.lineWidth = tubeW + 2;
+        ctx.stroke();
+        ctx.strokeStyle = '#ffeb3b';
+        ctx.lineWidth = tubeW - 2;
+        ctx.stroke();
+        return;
+      }
+
+      if (s.isFeed) {
+        ctx.beginPath();
+        ctx.moveTo(s.sx0, s.sy0);
+        ctx.lineTo(s.sx1, s.sy1);
+        ctx.strokeStyle = '#8d6e63';
+        ctx.lineWidth = 4;
+        ctx.stroke();
+        ctx.strokeStyle = '#a1887f';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        return;
+      }
+
+      // Determine color based on mode and loop
+      let outerColor, innerColor;
+      const depthShade = 0.5 + 0.5 * (1 - (s.depth + 1) / 2);
+
+      if (s.loop === 1) {
+        // Loop 1 always active
+        if (is80) {
+          const r = Math.round(255 * depthShade);
+          const g = Math.round(171 * depthShade);
+          const b = Math.round(64 * depthShade);
+          outerColor = `rgb(${Math.round(r*0.5)},${Math.round(g*0.5)},${Math.round(b*0.3)})`;
+          innerColor = `rgb(${r},${g},${b})`;
+        } else {
+          const r = Math.round(102 * depthShade);
+          const g = Math.round(220 * depthShade);
+          const b = Math.round(106 * depthShade);
+          outerColor = `rgb(${Math.round(r*0.4)},${Math.round(g*0.4)},${Math.round(b*0.4)})`;
+          innerColor = `rgb(${r},${g},${b})`;
+        }
+      } else {
+        // Loop 2: active in 80m, dead/shorted in 40m
+        if (is80) {
+          const r = Math.round(239 * depthShade);
+          const g = Math.round(83 * depthShade);
+          const b = Math.round(80 * depthShade);
+          outerColor = `rgb(${Math.round(r*0.5)},${Math.round(g*0.3)},${Math.round(b*0.3)})`;
+          innerColor = `rgb(${r},${g},${b})`;
+        } else {
+          // Dead loop — dim grey
+          const v = Math.round(80 * depthShade);
+          outerColor = `rgb(${Math.round(v*0.5)},${Math.round(v*0.5)},${Math.round(v*0.5)})`;
+          innerColor = `rgb(${v},${v},${v})`;
+        }
+      }
+
+      // Draw tube (thick line with inner highlight)
+      ctx.beginPath();
+      ctx.moveTo(s.sx0, s.sy0);
+      ctx.lineTo(s.sx1, s.sy1);
+      ctx.strokeStyle = outerColor;
+      ctx.lineWidth = tubeW + 3;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(s.sx0, s.sy0);
+      ctx.lineTo(s.sx1, s.sy1);
+      ctx.strokeStyle = innerColor;
+      ctx.lineWidth = tubeW;
+      ctx.lineCap = 'round';
+      ctx.stroke();
+
+      // Specular highlight on top-facing segments
+      if (s.angle !== undefined) {
+        const facing = Math.cos(s.angle - gapDir);
+        if (facing > 0.3) {
+          ctx.beginPath();
+          ctx.moveTo(s.sx0, s.sy0);
+          ctx.lineTo(s.sx1, s.sy1);
+          ctx.strokeStyle = `rgba(255,255,255,${0.12 * facing * depthShade})`;
+          ctx.lineWidth = tubeW * 0.4;
+          ctx.stroke();
+        }
+      }
+    });
+
+    // ── Current flow arrows ──
+    function drawArrow(fromX, fromY, toX, toY, color, dashed) {
+      const dx = toX - fromX, dy = toY - fromY;
+      const len = Math.sqrt(dx*dx + dy*dy);
+      const ux = dx/len, uy = dy/len;
+      // Shorten by 8px each end
+      const fx = fromX + ux*8, fy = fromY + uy*8;
+      const tx = toX - ux*12, ty = toY - uy*12;
+      ctx.beginPath();
+      ctx.moveTo(fx, fy);
+      ctx.lineTo(tx, ty);
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      if (dashed) ctx.setLineDash([8, 5]);
+      else ctx.setLineDash([]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      // Arrowhead
+      const ax = tx + ux*12, ay = ty + uy*12;
+      const px = -uy * 6, py = ux * 6;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay);
+      ctx.lineTo(tx + px, ty + py);
+      ctx.lineTo(tx - px, ty - py);
+      ctx.closePath();
+      ctx.fillStyle = color;
+      ctx.fill();
+    }
+
+    // Positions on screen
+    const sA = { x: cx + pA.x * S, y: cy + pA.y * S };
+    const sB = { x: cx + pB.x * S, y: cy + pB.y * S };
+    const sC = { x: cx + pC.x * S, y: cy + pC.y * S };
+    const sD = { x: cx + pD.x * S, y: cy + pD.y * S };
+
+    // ── Connection wires from gap to components ──
+    // Cap wires
+    const capW = 70, capH = 32;
+
+    // Wire: A down to cap left
+    ctx.beginPath();
+    ctx.moveTo(sA.x, sA.y);
+    ctx.lineTo(sA.x, capY - 2);
+    ctx.lineTo(capX - capW/2, capY - 2);
+    ctx.strokeStyle = '#42a5f5';
+    ctx.lineWidth = 2.5;
+    ctx.setLineDash([]);
+    ctx.stroke();
+
+    if (is80) {
+      // 80m: Cap right → Relay → D (relay energized, P1 NO connects to D)
+      // Wire from relay to D
+      ctx.beginPath();
+      ctx.moveTo(sD.x, sD.y);
+      ctx.lineTo(sD.x + 40, sD.y);
+      ctx.strokeStyle = '#ef5350';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // Relay to cap right
+      ctx.beginPath();
+      ctx.moveTo(sD.x + 40, sD.y);
+      ctx.lineTo(sD.x + 40, capY - 2);
+      ctx.lineTo(capX + capW/2, capY - 2);
+      ctx.strokeStyle = '#42a5f5';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // Current flow arrows along the loops
+      // Cap → A → Loop 1 (CCW around) → B(=C jumper) → Loop 2 (CW around) → D → Cap
+      const arrowColor = 'rgba(255,213,0,0.85)';
+      // Arrow on left side of Loop 1 (going up/back)
+      const a1mid = gapDir + Math.PI * 0.5;
+      const p1m = proj(R*Math.cos(a1mid), loop1Y, R*Math.sin(a1mid));
+      const a1m2 = gapDir + Math.PI * 0.6;
+      const p1m2 = proj(R*Math.cos(a1m2), loop1Y, R*Math.sin(a1m2));
+      drawArrow(cx+p1m.x*S, cy+p1m.y*S, cx+p1m2.x*S, cy+p1m2.y*S, arrowColor, false);
+
+      // Arrow on back side of Loop 1 (going right)
+      const a1b = gapDir + Math.PI;
+      const p1b = proj(R*Math.cos(a1b), loop1Y, R*Math.sin(a1b));
+      const a1b2 = gapDir + Math.PI * 1.1;
+      const p1b2 = proj(R*Math.cos(a1b2), loop1Y, R*Math.sin(a1b2));
+      drawArrow(cx+p1b.x*S, cy+p1b.y*S, cx+p1b2.x*S, cy+p1b2.y*S, arrowColor, false);
+
+      // Arrow on right side of Loop 1 (going down/front)
+      const a1r = gapDir + Math.PI * 1.5;
+      const p1r = proj(R*Math.cos(a1r), loop1Y, R*Math.sin(a1r));
+      const a1r2 = gapDir + Math.PI * 1.6;
+      const p1r2 = proj(R*Math.cos(a1r2), loop1Y, R*Math.sin(a1r2));
+      drawArrow(cx+p1r.x*S, cy+p1r.y*S, cx+p1r2.x*S, cy+p1r2.y*S, arrowColor, false);
+
+      // Arrow on jumper (B up to C)
+      const jB = { x: cx + jBot.x * S, y: cy + jBot.y * S };
+      const jC = { x: cx + jTop.x * S, y: cy + jTop.y * S };
+      drawArrow(jB.x, jB.y, jC.x, jC.y, arrowColor, false);
+
+      // Arrow on Loop 2 (back, going left — opposite direction)
+      const a2b = gapDir + Math.PI * 0.9;
+      const p2b = proj(R*Math.cos(a2b), loop2Y, R*Math.sin(a2b));
+      const a2b2 = gapDir + Math.PI * 0.8;
+      const p2b2 = proj(R*Math.cos(a2b2), loop2Y, R*Math.sin(a2b2));
+      drawArrow(cx+p2b.x*S, cy+p2b.y*S, cx+p2b2.x*S, cy+p2b2.y*S, arrowColor, false);
+
+      // Arrow on right side of Loop 2 (going toward D)
+      const a2r = gapDir + Math.PI * 1.5;
+      const p2r = proj(R*Math.cos(a2r), loop2Y, R*Math.sin(a2r));
+      const a2r2 = gapDir + Math.PI * 1.6;
+      const p2r2 = proj(R*Math.cos(a2r2), loop2Y, R*Math.sin(a2r2));
+      drawArrow(cx+p2r.x*S, cy+p2r.y*S, cx+p2r2.x*S, cy+p2r2.y*S, arrowColor, false);
+
+    } else {
+      // 40m/20m: Cap right → B directly (relay rests, P1 NC connects to B)
+      ctx.beginPath();
+      ctx.moveTo(sB.x, sB.y);
+      ctx.lineTo(sB.x + 40, sB.y);
+      ctx.lineTo(sB.x + 40, capY - 2);
+      ctx.lineTo(capX + capW/2, capY - 2);
+      ctx.strokeStyle = '#42a5f5';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      // D shorted to B (P2 NC)
+      ctx.beginPath();
+      ctx.moveTo(sD.x + 8, sD.y);
+      ctx.lineTo(sB.x + 8, sB.y);
+      ctx.strokeStyle = '#66bb6a';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Current flow arrows — only on Loop 1
+      const arrowColor = 'rgba(102,220,106,0.9)';
+      const a1mid = gapDir + Math.PI * 0.5;
+      const p1m = proj(R*Math.cos(a1mid), loop1Y, R*Math.sin(a1mid));
+      const a1m2 = gapDir + Math.PI * 0.6;
+      const p1m2 = proj(R*Math.cos(a1m2), loop1Y, R*Math.sin(a1m2));
+      drawArrow(cx+p1m.x*S, cy+p1m.y*S, cx+p1m2.x*S, cy+p1m2.y*S, arrowColor, false);
+
+      const a1b = gapDir + Math.PI;
+      const p1b = proj(R*Math.cos(a1b), loop1Y, R*Math.sin(a1b));
+      const a1b2 = gapDir + Math.PI * 1.1;
+      const p1b2 = proj(R*Math.cos(a1b2), loop1Y, R*Math.sin(a1b2));
+      drawArrow(cx+p1b.x*S, cy+p1b.y*S, cx+p1b2.x*S, cy+p1b2.y*S, arrowColor, false);
+
+      const a1r = gapDir + Math.PI * 1.5;
+      const p1r = proj(R*Math.cos(a1r), loop1Y, R*Math.sin(a1r));
+      const a1r2 = gapDir + Math.PI * 1.6;
+      const p1r2 = proj(R*Math.cos(a1r2), loop1Y, R*Math.sin(a1r2));
+      drawArrow(cx+p1r.x*S, cy+p1r.y*S, cx+p1r2.x*S, cy+p1r2.y*S, arrowColor, false);
+    }
+
+    // ── Draw cap box ──
+    ctx.fillStyle = '#0d47a1';
+    ctx.strokeStyle = '#1976d2';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(capX - capW/2, capY - capH/2, capW, capH, 6);
+    ctx.fill();
+    ctx.stroke();
+    // Cap plates
+    ctx.beginPath();
+    ctx.moveTo(capX - 6, capY - 10);
+    ctx.lineTo(capX - 6, capY + 10);
+    ctx.moveTo(capX + 6, capY - 10);
+    ctx.lineTo(capX + 6, capY + 10);
+    ctx.strokeStyle = '#64b5f6';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+    // Cap label
+    ctx.fillStyle = '#90caf9';
+    ctx.font = 'bold 17px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Variable Cap', capX, capY + capH/2 + 22);
+    ctx.font = '14px sans-serif';
+    ctx.fillText('20-250 pF', capX, capY + capH/2 + 40);
+
+    // ── Draw relay box (at gap right side) ──
+    if (is80) {
+      const rx = sD.x + 40, ry = sD.y;
+      ctx.fillStyle = '#1a0808';
+      ctx.strokeStyle = '#ef5350';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(rx - 28, ry - 22, 56, 44, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#ef5350';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('DPDT', rx, ry - 4);
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#ef9a9a';
+      ctx.fillText('ON', rx, ry + 12);
+    } else {
+      const rx = sB.x + 40, rTop = Math.min(sD.y, sB.y);
+      const rBot = Math.max(sD.y, sB.y);
+      const rcy = (rTop + rBot) / 2;
+      ctx.fillStyle = '#0a1a0a';
+      ctx.strokeStyle = '#66bb6a';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(rx - 28, rcy - 22, 56, 44, 6);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = '#66bb6a';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('DPDT', rx, rcy - 4);
+      ctx.font = '12px sans-serif';
+      ctx.fillStyle = '#81c784';
+      ctx.fillText('OFF', rx, rcy + 12);
+    }
+
+    // ── Labels at gap endpoints ──
+    ctx.font = 'bold 20px sans-serif';
+    ctx.textAlign = 'center';
+
+    // A label
+    ctx.fillStyle = '#ffab40';
+    ctx.beginPath();
+    ctx.arc(sA.x - 18, sA.y, 14, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,171,64,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#ffab40';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ffab40';
+    ctx.fillText('A', sA.x - 18, sA.y + 7);
+
+    // B label
+    ctx.beginPath();
+    ctx.arc(sB.x + 18, sB.y, 14, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,171,64,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#ffab40';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ffab40';
+    ctx.fillText('B', sB.x + 18, sB.y + 7);
+
+    // C label
+    ctx.fillStyle = '#ef5350';
+    ctx.beginPath();
+    ctx.arc(sC.x - 18, sC.y, 14, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(239,83,80,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#ef5350';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ef5350';
+    ctx.fillText('C', sC.x - 18, sC.y + 7);
+
+    // D label
+    ctx.beginPath();
+    ctx.arc(sD.x + 18, sD.y, 14, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(239,83,80,0.15)';
+    ctx.fill();
+    ctx.strokeStyle = '#ef5350';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#ef5350';
+    ctx.fillText('D', sD.x + 18, sD.y + 7);
+
+    // ── Loop labels ──
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'left';
+
+    // Loop 1 label (at left side)
+    const l1lbl = proj(-R - 0.15, loop1Y, 0);
+    ctx.fillStyle = is80 ? '#ffab40' : '#66bb6a';
+    ctx.fillText('Loop 1', cx + l1lbl.x * S - 60, cy + l1lbl.y * S + 5);
+    ctx.font = '13px sans-serif';
+    ctx.fillText(is80 ? '(bottom, active)' : '(active)', cx + l1lbl.x * S - 60, cy + l1lbl.y * S + 22);
+
+    // Loop 2 label
+    ctx.font = 'bold 16px sans-serif';
+    const l2lbl = proj(-R - 0.15, loop2Y, 0);
+    ctx.fillStyle = is80 ? '#ef5350' : '#777';
+    ctx.fillText('Loop 2', cx + l2lbl.x * S - 60, cy + l2lbl.y * S + 5);
+    ctx.font = '13px sans-serif';
+    ctx.fillText(is80 ? '(top, active)' : '(shorted, dead)', cx + l2lbl.x * S - 60, cy + l2lbl.y * S + 22);
+
+    // ── Jumper label at back ──
+    const jLabel = proj(jx * 0.7, loopSep / 2, jz * 0.7);
+    ctx.fillStyle = '#ffd600';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Jumper B\u2194C', cx + jLabel.x * S, cy + jLabel.y * S - 20);
+    ctx.font = '12px sans-serif';
+    ctx.fillText('(permanent)', cx + jLabel.x * S, cy + jLabel.y * S - 4);
+
+    // ── Feed loop label ──
+    ctx.fillStyle = '#a1887f';
+    ctx.font = 'bold 14px sans-serif';
+    ctx.fillText('Feed Loop', cx, cy + proj(0, feedY, -feedR - 0.05).y * S + 20);
+
+    // ── Dimension: Ø 1.20 m ──
+    ctx.fillStyle = '#ce93d8';
+    ctx.font = 'bold 15px sans-serif';
+    ctx.textAlign = 'center';
+    const dimP = proj(0, loop1Y, -R - 0.2);
+    ctx.fillText('\u00D8 1.20 m', cx + dimP.x * S, cy + dimP.y * S + 4);
+
+    // ── 50 mm spacing label ──
+    const sp1 = proj(-R - 0.08, loop1Y, R * 0.5);
+    const sp2 = proj(-R - 0.08, loop2Y, R * 0.5);
+    ctx.beginPath();
+    ctx.moveTo(cx + sp1.x * S - 8, cy + sp1.y * S);
+    ctx.lineTo(cx + sp2.x * S - 8, cy + sp2.y * S);
+    ctx.strokeStyle = '#ce93d8';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([]);
+    ctx.stroke();
+    // tick marks
+    ctx.beginPath();
+    ctx.moveTo(cx + sp1.x * S - 14, cy + sp1.y * S);
+    ctx.lineTo(cx + sp1.x * S - 2, cy + sp1.y * S);
+    ctx.moveTo(cx + sp2.x * S - 14, cy + sp2.y * S);
+    ctx.lineTo(cx + sp2.x * S - 2, cy + sp2.y * S);
+    ctx.stroke();
+    ctx.fillStyle = '#ce93d8';
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText('50 mm', cx + sp1.x * S - 18, cy + (sp1.y + sp2.y) / 2 * S + 4);
+
+    // ── Current path text at bottom ──
+    ctx.font = 'bold 16px sans-serif';
+    ctx.textAlign = 'center';
+    if (is80) {
+      ctx.fillStyle = '#ffd600';
+      ctx.fillText('RF Path: Cap \u2192 A \u2192 Loop 1 \u2192 B=C \u2192 Loop 2 \u2192 D \u2192 Cap', W/2, H - 30);
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = '#ffab40';
+      ctx.fillText('2-turn series \u2014 inductance \u00D74 \u2014 resonates 3.5\u20134.0 MHz', W/2, H - 10);
+    } else {
+      ctx.fillStyle = '#66bb6a';
+      ctx.fillText('RF Path: Cap \u2192 A \u2192 Loop 1 \u2192 B \u2192 Cap  (Loop 2 shorted D\u2194B)', W/2, H - 30);
+      ctx.font = '14px sans-serif';
+      ctx.fillStyle = '#81c784';
+      ctx.fillText('1-turn only \u2014 inductance \u00F71 \u2014 resonates 7\u201314 MHz', W/2, H - 10);
+    }
+
+    // ── Title ──
+    ctx.fillStyle = '#ffd600';
+    ctx.font = 'bold 18px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(is80 ? '80 m \u2014 2-Turn Series' : '40m / 20m \u2014 1-Turn Only', W/2, 28);
+    ctx.font = '14px sans-serif';
+    ctx.fillStyle = '#aaa';
+    ctx.fillText('40 mm Ag-Cu tube \u00B7 Ø 1.20 m circle \u00B7 Gap at front', W/2, 48);
+  }
+
+  drawLoop3D('loop3d80', '80m');
+  drawLoop3D('loop3d40', '40m');
 })();
 </script>
 
