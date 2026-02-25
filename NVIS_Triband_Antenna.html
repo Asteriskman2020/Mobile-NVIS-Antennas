@@ -474,6 +474,198 @@
     </div>
   </div>
 
+  <!-- Full Schematic Diagram -->
+  <div style="margin-top:28px; background:var(--card); border-radius:12px; padding:24px 28px; border:1px solid #1a3058;">
+    <h3 style="color:var(--gold); margin-bottom:16px; font-size:1.2rem;">Complete Schematic Diagram</h3>
+    <svg viewBox="0 0 900 520" style="width:100%; max-width:900px; display:block; margin:0 auto; background:#060b14; border-radius:10px; border:1px solid #1a3058;">
+      <defs>
+        <marker id="arrowR" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="#90a4ae"/>
+        </marker>
+        <marker id="arrowG" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <path d="M0,0 L8,3 L0,6" fill="#66bb6a"/>
+        </marker>
+      </defs>
+
+      <!-- Title -->
+      <text x="450" y="24" text-anchor="middle" fill="#ffd600" font-size="14" font-weight="700" font-family="sans-serif">TRI-BAND NVIS LOOP &mdash; COMPLETE SCHEMATIC &mdash; HS2GJG</text>
+
+      <!-- ═══ LOOP 2 (top) ═══ -->
+      <path d="M 180,70 C 180,42 370,42 520,42 C 670,42 720,70 720,70" fill="none" stroke="#ef5350" stroke-width="3"/>
+      <text x="450" y="38" text-anchor="middle" fill="#ef5350" font-size="11" font-weight="700">LOOP 2 (top) &mdash; 40 mm Ag-Cu &mdash; &Oslash; 1.20 m</text>
+      <!-- C label -->
+      <circle cx="180" cy="70" r="10" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <text x="180" y="74" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">C</text>
+      <!-- D label -->
+      <circle cx="720" cy="70" r="10" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <text x="720" y="74" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">D</text>
+      <!-- 50mm spacing label -->
+      <line x1="155" y1="72" x2="155" y2="118" stroke="#ce93d8" stroke-width="1.5"/>
+      <line x1="150" y1="72" x2="160" y2="72" stroke="#ce93d8" stroke-width="1.5"/>
+      <line x1="150" y1="118" x2="160" y2="118" stroke="#ce93d8" stroke-width="1.5"/>
+      <text x="140" y="98" text-anchor="end" fill="#ce93d8" font-size="9" font-weight="700">50 mm</text>
+
+      <!-- ═══ LOOP 1 (bottom) ═══ -->
+      <path d="M 180,120 C 180,92 370,92 520,92 C 670,92 720,120 720,120" fill="none" stroke="#ffab40" stroke-width="3"/>
+      <text x="450" y="105" text-anchor="middle" fill="#ffab40" font-size="11" font-weight="700">LOOP 1 (bottom) &mdash; 40 mm Ag-Cu &mdash; &Oslash; 1.20 m</text>
+      <!-- A label -->
+      <circle cx="180" cy="120" r="10" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <text x="180" y="124" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">A</text>
+      <!-- B label -->
+      <circle cx="720" cy="120" r="10" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <text x="720" y="124" text-anchor="middle" fill="#fff" font-size="10" font-weight="700">B</text>
+
+      <!-- ═══ PERMANENT JUMPER (left side, B↔C) ═══ -->
+      <line x1="180" y1="80" x2="180" y2="110" stroke="#ffd600" stroke-width="3"/>
+      <text x="128" y="98" text-anchor="end" fill="#ffd600" font-size="10" font-weight="700">Ag-Cu Jumper</text>
+      <text x="128" y="110" text-anchor="end" fill="#ffd600" font-size="9">(permanent)</text>
+
+      <!-- ═══ DPDT RELAY (right side) ═══ -->
+      <rect x="740" y="55" width="140" height="100" rx="8" fill="#1a0808" stroke="#ef5350" stroke-width="2"/>
+      <text x="810" y="75" text-anchor="middle" fill="#ef5350" font-size="12" font-weight="700">DPDT RELAY</text>
+      <text x="810" y="90" text-anchor="middle" fill="#ef9a9a" font-size="9">12V coil / ESP32 GPIO</text>
+
+      <!-- Pole 1 -->
+      <text x="755" y="110" fill="#42a5f5" font-size="9" font-weight="700">P1</text>
+      <!-- P1 COM from cap -->
+      <circle cx="775" cy="122" r="3" fill="#42a5f5"/>
+      <text x="775" y="118" text-anchor="middle" fill="#546e7a" font-size="7">COM</text>
+      <!-- P1 NO to D -->
+      <line x1="775" y1="122" x2="795" y2="108" stroke="#ffab40" stroke-width="1.5" stroke-dasharray="3,2"/>
+      <circle cx="795" cy="108" r="3" fill="#ffab40"/>
+      <text x="795" y="103" text-anchor="middle" fill="#ffab40" font-size="7">NO&rarr;D</text>
+      <!-- P1 NC to B -->
+      <circle cx="795" cy="136" r="3" fill="#66bb6a"/>
+      <text x="795" y="148" text-anchor="middle" fill="#66bb6a" font-size="7">NC&rarr;B</text>
+
+      <!-- Pole 2 -->
+      <text x="830" y="110" fill="#42a5f5" font-size="9" font-weight="700">P2</text>
+      <!-- P2 COM from D -->
+      <circle cx="850" cy="108" r="3" fill="#42a5f5"/>
+      <text x="850" y="103" text-anchor="middle" fill="#546e7a" font-size="7">COM=D</text>
+      <!-- P2 NO open -->
+      <circle cx="870" cy="100" r="3" fill="#555"/>
+      <text x="870" y="95" text-anchor="middle" fill="#555" font-size="7">NO(open)</text>
+      <!-- P2 NC to B -->
+      <circle cx="870" cy="136" r="3" fill="#66bb6a"/>
+      <text x="870" y="148" text-anchor="middle" fill="#66bb6a" font-size="7">NC&rarr;B</text>
+
+      <!-- Wires: D to relay P1 NO and P2 COM -->
+      <line x1="720" y1="70" x2="740" y2="70" stroke="#aaa" stroke-width="1.5"/>
+      <line x1="740" y1="70" x2="795" y2="108" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="740" y1="70" x2="850" y2="108" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+      <!-- Wire: B to relay P1 NC and P2 NC -->
+      <line x1="720" y1="120" x2="740" y2="120" stroke="#aaa" stroke-width="1.5"/>
+      <line x1="740" y1="120" x2="795" y2="136" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+      <line x1="740" y1="120" x2="870" y2="136" stroke="#aaa" stroke-width="1" stroke-dasharray="3,2"/>
+
+      <!-- ═══ VARIABLE CAPACITOR ═══ -->
+      <!-- Wire from A down to cap -->
+      <line x1="180" y1="130" x2="180" y2="210" stroke="#42a5f5" stroke-width="2"/>
+      <!-- Wire from P1 COM down to cap -->
+      <line x1="775" y1="122" x2="775" y2="170" stroke="#42a5f5" stroke-width="1.5"/>
+      <line x1="775" y1="170" x2="720" y2="210" stroke="#42a5f5" stroke-width="2"/>
+
+      <!-- Cap symbol -->
+      <rect x="220" y="195" width="460" height="40" rx="8" fill="#0d47a1" stroke="#1976d2" stroke-width="2"/>
+      <!-- Cap plates -->
+      <line x1="380" y1="200" x2="380" y2="230" stroke="#64b5f6" stroke-width="3"/>
+      <line x1="400" y1="200" x2="400" y2="230" stroke="#64b5f6" stroke-width="3"/>
+      <!-- Arrow (variable) -->
+      <line x1="370" y1="232" x2="410" y2="198" stroke="#64b5f6" stroke-width="1.5" marker-end="url(#arrowG)"/>
+      <text x="450" y="220" text-anchor="middle" fill="#bbdefb" font-size="12" font-weight="700">Variable Vacuum Cap</text>
+      <text x="450" y="232" text-anchor="middle" fill="#90caf9" font-size="10">20&ndash;250 pF &middot; 7.5 kV &middot; Q &asymp; 30,000</text>
+      <!-- Wires to cap box -->
+      <line x1="180" y1="215" x2="220" y2="215" stroke="#42a5f5" stroke-width="2"/>
+      <line x1="680" y1="215" x2="720" y2="215" stroke="#42a5f5" stroke-width="2"/>
+      <!-- labels -->
+      <text x="200" y="205" text-anchor="middle" fill="#42a5f5" font-size="9" font-weight="700">from A</text>
+      <text x="700" y="205" text-anchor="middle" fill="#42a5f5" font-size="9" font-weight="700">from Relay P1</text>
+
+      <!-- ═══ STEPPER MOTOR ═══ -->
+      <rect x="340" y="255" width="110" height="35" rx="6" fill="#263238" stroke="#455a64" stroke-width="2"/>
+      <text x="395" y="277" text-anchor="middle" fill="#b0bec5" font-size="11" font-weight="700">NEMA17 Stepper</text>
+      <!-- Shaft to cap -->
+      <line x1="395" y1="255" x2="395" y2="235" stroke="#78909c" stroke-width="3"/>
+      <circle cx="395" cy="248" r="4" fill="#78909c" stroke="#546e7a" stroke-width="1"/>
+      <!-- Cable down to ESP32 -->
+      <line x1="395" y1="290" x2="395" y2="340" stroke="#78909c" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+      <!-- ═══ ESP32 CONTROLLER ═══ -->
+      <rect x="280" y="340" width="230" height="65" rx="8" fill="#1b5e20" stroke="#66bb6a" stroke-width="2"/>
+      <text x="395" y="365" text-anchor="middle" fill="#a5d6a7" font-size="13" font-weight="700">ESP32 Tri-Band Controller</text>
+      <text x="395" y="382" text-anchor="middle" fill="#81c784" font-size="10">Band select &middot; Stepper drive &middot; Relay GPIO</text>
+      <text x="395" y="396" text-anchor="middle" fill="#81c784" font-size="9">SWR monitor &middot; Auto-tune &middot; WiFi/BLE</text>
+
+      <!-- Relay control wire -->
+      <line x1="510" y1="360" x2="810" y2="155" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="680" y="240" fill="#ef9a9a" font-size="9" font-weight="700" transform="rotate(-25,680,240)">Relay coil drive</text>
+
+      <!-- ═══ COUPLING / FEED LOOP ═══ -->
+      <ellipse cx="450" cy="140" rx="50" ry="18" fill="none" stroke="#a0522d" stroke-width="2.5"/>
+      <text x="450" y="144" text-anchor="middle" fill="#d7ccc8" font-size="10" font-weight="700">Feed Loop</text>
+      <text x="450" y="156" text-anchor="middle" fill="#bcaaa4" font-size="8">240 mm Faraday &middot; RG-213</text>
+
+      <!-- Coax from feed loop down -->
+      <line x1="450" y1="158" x2="450" y2="180" stroke="#a0522d" stroke-width="2"/>
+
+      <!-- SO-239 connector -->
+      <rect x="438" y="180" width="24" height="14" rx="3" fill="#78909c" stroke="#546e7a" stroke-width="1.5"/>
+      <text x="450" y="191" text-anchor="middle" fill="#fff" font-size="7" font-weight="700">SO-239</text>
+
+      <!-- Coax cable -->
+      <line x1="450" y1="194" x2="450" y2="440" stroke="#222" stroke-width="4"/>
+      <line x1="450" y1="194" x2="450" y2="440" stroke="#333" stroke-width="2"/>
+
+      <!-- Choke balun -->
+      <ellipse cx="450" cy="420" rx="18" ry="10" fill="#3e2723" stroke="#8d6e63" stroke-width="1.5"/>
+      <text x="450" y="424" text-anchor="middle" fill="#d7ccc8" font-size="7" font-weight="700">Choke</text>
+      <text x="478" y="424" fill="#a1887f" font-size="8" font-weight="700">Balun</text>
+
+      <!-- To radio -->
+      <line x1="450" y1="430" x2="450" y2="465" stroke="#222" stroke-width="4"/>
+      <line x1="450" y1="430" x2="450" y2="465" stroke="#333" stroke-width="2"/>
+
+      <!-- Radio box -->
+      <rect x="395" y="465" width="110" height="35" rx="6" fill="#37474f" stroke="#78909c" stroke-width="2"/>
+      <text x="450" y="487" text-anchor="middle" fill="#e0e0e0" font-size="11" font-weight="700">HF Radio 15W</text>
+
+      <!-- Coax label -->
+      <text x="432" y="320" text-anchor="end" fill="#78909c" font-size="9" font-weight="700">RG-58 Coax</text>
+
+      <!-- ═══ POWER / SIGNAL LEGEND ═══ -->
+      <rect x="20" y="440" width="200" height="70" rx="6" fill="#0f1a2e" stroke="#1a3058" stroke-width="1"/>
+      <text x="30" y="458" fill="#e0e0e0" font-size="10" font-weight="700">Legend:</text>
+      <line x1="30" y1="472" x2="60" y2="472" stroke="#ffab40" stroke-width="3"/>
+      <text x="68" y="476" fill="#ffab40" font-size="9">Loop conductors (40 mm Ag-Cu)</text>
+      <line x1="30" y1="486" x2="60" y2="486" stroke="#42a5f5" stroke-width="2"/>
+      <text x="68" y="490" fill="#42a5f5" font-size="9">RF path (cap connections)</text>
+      <line x1="30" y1="500" x2="60" y2="500" stroke="#ef5350" stroke-width="1.5" stroke-dasharray="5,3"/>
+      <text x="68" y="504" fill="#ef9a9a" font-size="9">Control signals (ESP32)</text>
+
+      <!-- ═══ COMPONENT NOTES ═══ -->
+      <rect x="620" y="260" width="260" height="115" rx="6" fill="#0f1a2e" stroke="#1a3058" stroke-width="1"/>
+      <text x="635" y="280" fill="#ffd600" font-size="10" font-weight="700">Component Notes:</text>
+      <text x="635" y="296" fill="#e0e0e0" font-size="9">&bull; Relay: 12V DPDT, &gt;10A contacts, IP65</text>
+      <text x="635" y="310" fill="#e0e0e0" font-size="9">&bull; Stepper: NEMA17, 1.8&deg;/step, 4-wire</text>
+      <text x="635" y="324" fill="#e0e0e0" font-size="9">&bull; Cap: vacuum variable, ceramic insulator</text>
+      <text x="635" y="338" fill="#e0e0e0" font-size="9">&bull; Feed: Faraday shield both ends, gap at top</text>
+      <text x="635" y="352" fill="#e0e0e0" font-size="9">&bull; Balun: 10 turns RG-58 on FT-240-43</text>
+      <text x="635" y="366" fill="#e0e0e0" font-size="9">&bull; Max V<tspan font-size="7" dy="2">cap</tspan><tspan dy="-2"> @ 15W: 4.4 kV (80m), 2.4 kV (40m)</tspan></text>
+
+      <!-- Border -->
+      <rect x="2" y="2" width="896" height="516" rx="10" fill="none" stroke="#1a3058" stroke-width="2"/>
+    </svg>
+
+    <p style="color:var(--text2); font-size:0.82rem; text-align:center; margin-top:12px; line-height:1.6;">
+      All high-voltage RF connections use silver-soldered joints &mdash;
+      Relay and cap housed in IP65 enclosure on loop top &mdash;
+      ESP32 + stepper driver in separate shielded box inside vehicle
+    </p>
+  </div>
+
+  </div>
+
 </section>
 
 <!-- ════════ NVIS Radiation Pattern (Static 3D) ════════ -->
