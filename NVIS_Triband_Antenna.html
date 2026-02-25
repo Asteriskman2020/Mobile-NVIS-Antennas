@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tri-Band NVIS 80m / 40m / 20m — Ø 1.20 m Circular Ag-Cu Loop Antenna</title>
+<style>
+  :root {
+    --bg: #080e1a; --card: #0f1a2e; --card2: #1a2530;
+    --blue: #1565c0; --blue-lt: #42a5f5; --blue-dk: #0d47a1;
+    --amber: #ffab40; --amber-dk: #e65100; --amber-lt: #ffe0b2;
+    --green: #66bb6a; --green-dk: #2e7d32; --green-lt: #a5d6a7;
+    --cyan: #00838f; --cyan-lt: #4dd0e1; --cyan-bg: #e0f7fa;
+    --red: #ef5350; --gold: #ffd600;
+    --text: #e0e0e0; --text2: #90a4ae; --white: #ffffff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.6;
+  }
+  .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+
+  /* ── Header ── */
+  header {
+    background: linear-gradient(135deg, var(--blue-dk), var(--blue));
+    padding: 32px 0; text-align: center; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  header h1 { font-size: 2.2rem; color: var(--white); letter-spacing: 1px; }
+  header p { color: var(--gold); font-size: 1.1rem; margin-top: 8px; font-weight: 600; }
+
+  /* ── Hero ── */
+  .hero { margin: 32px 0; text-align: center; }
+  .hero img {
+    max-width: 100%; border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    border: 2px solid #1a3058;
+  }
+  .hero-caption {
+    margin-top: 12px; color: var(--text2); font-size: 0.9rem; font-style: italic;
+  }
+
+  /* ── Section ── */
+  section { margin: 40px 0; }
+  .section-title {
+    font-size: 1.6rem; font-weight: 700; margin-bottom: 20px;
+    padding-bottom: 10px; border-bottom: 3px solid var(--blue);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .section-title .badge {
+    display: inline-block; padding: 4px 14px; border-radius: 20px;
+    font-size: 0.75rem; font-weight: 700; text-transform: uppercase;
+  }
+  .badge-80 { background: var(--amber); color: #000; }
+  .badge-40 { background: var(--green); color: #000; }
+  .badge-20 { background: var(--cyan-lt); color: #000; }
+
+  /* ── Key Specs Grid ── */
+  .key-specs {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin-bottom: 32px;
+  }
+  .spec-card {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    text-align: center; border: 1px solid #1a3058;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .spec-card:hover {
+    transform: translateY(-4px); box-shadow: 0 8px 24px rgba(21,101,192,0.3);
+  }
+  .spec-card .value {
+    font-size: 2rem; font-weight: 800; margin: 8px 0;
+  }
+  .spec-card .label {
+    font-size: 0.85rem; color: var(--text2); text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .spec-card .unit { font-size: 0.9rem; font-weight: 400; opacity: 0.7; }
+  .c-amber { color: var(--amber); }
+  .c-green { color: var(--green); }
+  .c-cyan  { color: var(--cyan-lt); }
+  .c-blue  { color: var(--blue-lt); }
+  .c-gold  { color: var(--gold); }
+  .c-red   { color: var(--red); }
+
+  /* ── Data Table ── */
+  .data-table {
+    width: 100%; border-collapse: separate; border-spacing: 0;
+    border-radius: 12px; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  }
+  .data-table thead th {
+    background: var(--blue-dk); color: var(--white);
+    padding: 14px 16px; font-size: 0.95rem; font-weight: 700;
+    text-align: center; border-bottom: 2px solid var(--blue);
+  }
+  .data-table thead th:first-child { text-align: left; }
+  .data-table thead th.h-80 { color: var(--amber-lt); }
+  .data-table thead th.h-40 { color: var(--green-lt); }
+  .data-table thead th.h-20 { color: var(--cyan-lt); }
+  .data-table tbody td {
+    padding: 11px 16px; text-align: center; font-size: 0.9rem;
+    border-bottom: 1px solid #1a2a40;
+  }
+  .data-table tbody td:first-child {
+    text-align: left; font-weight: 600; color: var(--white);
+  }
+  .data-table tbody tr { background: var(--card); }
+  .data-table tbody tr:nth-child(even) { background: var(--card2); }
+  .data-table tbody tr:hover { background: #1e3450; }
+  .data-table .highlight {
+    background: rgba(46,125,50,0.15) !important; font-weight: 700;
+  }
+
+  /* ── Charts ── */
+  .charts-row {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin: 24px 0;
+  }
+  .chart-box {
+    background: var(--card); border-radius: 12px; padding: 24px;
+    border: 1px solid #1a3058;
+  }
+  .chart-box h3 {
+    font-size: 1.1rem; color: var(--white); margin-bottom: 16px; text-align: center;
+  }
+  .bar-chart { display: flex; align-items: flex-end; justify-content: center; gap: 32px; height: 220px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar {
+    width: 64px; border-radius: 6px 6px 0 0; position: relative;
+    transition: height 0.8s ease-out;
+    min-height: 4px;
+  }
+  .bar .bar-label {
+    position: absolute; top: -24px; left: 50%; transform: translateX(-50%);
+    font-size: 0.85rem; font-weight: 700; white-space: nowrap;
+  }
+  .bar-band { font-size: 0.9rem; font-weight: 600; color: var(--text2); }
+
+  /* ── Pie Charts ── */
+  .pies-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 24px 0;
+  }
+  .pie-box {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    border: 1px solid #1a3058; text-align: center;
+  }
+  .pie-box h3 { font-size: 1rem; margin-bottom: 12px; }
+  .pie-box svg { display: block; margin: 0 auto 12px; }
+  .pie-legend { font-size: 0.8rem; color: var(--text2); line-height: 1.8; }
+  .pie-legend span { display: inline-block; width: 12px; height: 12px;
+    border-radius: 3px; margin-right: 6px; vertical-align: middle; }
+
+  /* ── Build Guide ── */
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step {
+    display: flex; gap: 16px; background: var(--card);
+    border-radius: 12px; padding: 20px; border: 1px solid #1a3058;
+    transition: border-color 0.2s;
+  }
+  .step:hover { border-color: var(--amber); }
+  .step-num {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: var(--amber-dk); color: var(--white);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; font-weight: 800; flex-shrink: 0;
+  }
+  .step-content h4 { color: var(--amber); font-size: 1rem; margin-bottom: 4px; }
+  .step-content p { color: var(--text2); font-size: 0.9rem; }
+
+  /* ── BOM ── */
+  .bom-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px; margin: 16px 0;
+  }
+  .bom-item {
+    background: var(--card); border-radius: 10px; padding: 14px;
+    border: 1px solid #1a3058; display: flex; justify-content: space-between;
+    align-items: center;
+  }
+  .bom-item .name { font-size: 0.9rem; }
+  .bom-item .price { color: var(--gold); font-weight: 700; font-size: 0.95rem; }
+  .bom-total {
+    background: linear-gradient(135deg, var(--amber-dk), #bf360c);
+    border-radius: 12px; padding: 18px 24px; text-align: center;
+    margin-top: 16px; font-size: 1.3rem; font-weight: 800; color: var(--white);
+  }
+
+  /* ── Topology ── */
+  .topology-cards {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 16px 0;
+  }
+  .topo-card {
+    border-radius: 12px; padding: 20px; text-align: center;
+    border: 2px solid; position: relative;
+  }
+  .topo-card h4 { font-size: 1.1rem; margin-bottom: 8px; }
+  .topo-card .config { font-size: 0.85rem; line-height: 1.7; }
+  .topo-80 { background: rgba(255,171,64,0.08); border-color: var(--amber); }
+  .topo-80 h4 { color: var(--amber); }
+  .topo-40 { background: rgba(102,187,106,0.08); border-color: var(--green); }
+  .topo-40 h4 { color: var(--green); }
+  .topo-20 { background: rgba(77,208,225,0.08); border-color: var(--cyan-lt); }
+  .topo-20 h4 { color: var(--cyan-lt); }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--blue-dk); padding: 24px 0; text-align: center;
+    margin-top: 48px; color: var(--text2); font-size: 0.9rem;
+  }
+  footer strong { color: var(--white); }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    header h1 { font-size: 1.4rem; }
+    header p { font-size: 0.9rem; }
+    .charts-row, .pies-row, .topology-cards { grid-template-columns: 1fr; }
+    .key-specs { grid-template-columns: repeat(2, 1fr); }
+    .bar-chart { height: 160px; gap: 20px; }
+    .bar { width: 48px; }
+  }
+
+  /* ── Static Radiation Patterns ── */
+  .patterns-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin: 24px 0;
+  }
+  .pattern-card {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    border: 1px solid #1a3058; text-align: center;
+  }
+  .pattern-card h3 { font-size: 1.1rem; margin-bottom: 12px; }
+  .pattern-card svg, .pattern-card canvas { display: block; margin: 0 auto 12px; max-width: 100%; height: auto; }
+  .pattern-stats {
+    font-size: 0.85rem; color: var(--text2); line-height: 1.8;
+  }
+  .pattern-stats strong { color: var(--white); }
+  .pattern-note {
+    text-align: center; color: var(--text2); font-size: 0.85rem;
+    margin-top: 16px; line-height: 1.6;
+  }
+  @media (max-width: 768px) {
+    .patterns-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════════ Header ════════ -->
+<header>
+  <div class="container">
+    <h1>TRI-BAND NVIS 80m / 40m / 20m</h1>
+    <p>&Oslash; 1.20 m Circular Ag-Cu Loop &mdash; Sedan Roof Mount &mdash; 40 mm Silver-Plated Copper &mdash; 15 W</p>
+  </div>
+</header>
+
+<!-- ════════ Hero Poster ════════ -->
+<div class="container">
+<section class="hero">
+  <img src="NVIS_80_40_20m_Triband_Sedan_3D.jpg"
+       alt="Tri-Band NVIS Antenna 3D Installation View">
+  <p class="hero-caption">3D installation view &mdash; &Oslash; 1.20 m circle on sedan roof, 13 cm profile</p>
+</section>
+
+<!-- ════════ Key Specs ════════ -->
+<section>
+  <h2 class="section-title">Key Specifications</h2>
+  <div class="key-specs">
+    <div class="spec-card">
+      <div class="label">Loop Shape</div>
+      <div class="value c-blue">Circle</div>
+      <div class="label">&Oslash; 1.20 m</div>
+    </div>
+    <div class="spec-card">
+      <div class="label">Tube</div>
+      <div class="value c-gold">40<span class="unit"> mm</span></div>
+      <div class="label">Ag-Plated Copper</div>
+    </div>
+    <div class="spec-card">
+      <div class="label">Cap Q</div>
+      <div class="value c-green">30,000</div>
+      <div class="label">Vacuum variable cap</div>
+    </div>
+    <div class="spec-card">
+      <div class="label">Bands</div>
+      <div class="value c-cyan">3</div>
+      <div class="label">80m / 40m / 20m</div>
+    </div>
+    <div class="spec-card">
+      <div class="label">Max Power</div>
+      <div class="value c-red">15<span class="unit"> W</span></div>
+      <div class="label">7.5 kV vacuum cap</div>
+    </div>
+    <div class="spec-card">
+      <div class="label">Total BOM</div>
+      <div class="value c-gold">~$445</div>
+      <div class="label">All components</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Switching Topology ════════ -->
+<section>
+  <h2 class="section-title">Tri-Band Switching Topology</h2>
+  <div class="topology-cards">
+    <div class="topo-card topo-80">
+      <h4><span class="badge badge-80">80m</span> 3.5 &ndash; 4.0 MHz</h4>
+      <div class="config">
+        <strong>2 turns</strong> in series<br>
+        Variable cap ~190 pF<br>
+        DPDT relay <strong>ON</strong><br>
+        NVIS: <strong>24 hours</strong>
+      </div>
+    </div>
+    <div class="topo-card topo-40">
+      <h4><span class="badge badge-40">40m</span> 7.0 &ndash; 7.3 MHz</h4>
+      <div class="config">
+        <strong>1 turn</strong> only<br>
+        Variable cap ~190 pF<br>
+        DPDT relay <strong>OFF</strong><br>
+        NVIS: <strong>Daytime</strong>
+      </div>
+    </div>
+    <div class="topo-card topo-20">
+      <h4><span class="badge badge-20">20m</span> 14.0 &ndash; 14.35 MHz</h4>
+      <div class="config">
+        <strong>1 turn</strong> only<br>
+        Variable cap ~47 pF<br>
+        DPDT relay <strong>OFF</strong><br>
+        NVIS: <strong>Midday / solar max</strong>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ NVIS Radiation Pattern (Static 3D) ════════ -->
+<section>
+  <h2 class="section-title">3D NVIS Radiation Pattern</h2>
+  <div class="patterns-row" id="patternRow"></div>
+  <div class="pattern-note">
+    Horizontal magnetic loop over ground &mdash; E(&theta;) &prop; sin(&theta;) &mdash;
+    Peak radiation at zenith (90&deg; elevation) &mdash; NVIS cone 70&deg;&ndash;90&deg; shaded orange<br>
+    <span style="display:inline-block;width:12px;height:12px;background:#ff8a65;border-radius:2px;vertical-align:middle;margin-right:4px"></span>NVIS cone
+    &nbsp;&nbsp;
+    <span style="display:inline-block;width:12px;height:12px;background:#4dd0e1;border-radius:2px;vertical-align:middle;margin-right:4px"></span>F2 ionosphere
+    &nbsp;&nbsp;
+    <span style="display:inline-block;width:12px;height:12px;background:#d4852e;border-radius:2px;vertical-align:middle;margin-right:4px"></span>Antenna
+  </div>
+</section>
+
+<!-- ════════ Performance Table ════════ -->
+<section>
+  <h2 class="section-title">Performance Data
+    <span class="badge badge-80">80m</span>
+    <span class="badge badge-40">40m</span>
+    <span class="badge badge-20">20m</span>
+  </h2>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Parameter</th>
+        <th class="h-80">80 m (2-Turn)</th>
+        <th class="h-40">40 m (1-Turn)</th>
+        <th class="h-20">20 m (1-Turn)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Frequency</td><td>3.500 &ndash; 4.000 MHz</td><td>7.000 &ndash; 7.300 MHz</td><td>14.00 &ndash; 14.35 MHz</td></tr>
+      <tr><td>Loop Size</td><td>&Oslash; 1.20 m circle</td><td>&Oslash; 1.20 m circle</td><td>&Oslash; 1.20 m circle</td></tr>
+      <tr><td>Turns / Config</td><td>2 series, 50 mm gap</td><td>1 (Turn 2 bypassed)</td><td>1 (Turn 2 bypassed)</td></tr>
+      <tr><td>Tube</td><td>40 mm Ag-plated Cu</td><td>40 mm Ag-plated Cu</td><td>40 mm Ag-plated Cu</td></tr>
+      <tr><td>Tuning Cap</td><td>~190 pF (var)</td><td>~190 pF (var)</td><td>~47 pF (var)</td></tr>
+      <tr><td>Radiation Res. (Rr)</td><td>~3.0 m&Omega;</td><td>~11.8 m&Omega;</td><td>~189 m&Omega;</td></tr>
+      <tr><td>Cu Loss (Rl)</td><td>~28.1 m&Omega;</td><td>~19.9 m&Omega;</td><td>~28.1 m&Omega;</td></tr>
+      <tr><td>Cap ESR (Rc, Q=30k)</td><td>~8.0 m&Omega;</td><td>~4.0 m&Omega;</td><td>~8.0 m&Omega;</td></tr>
+      <tr class="highlight"><td>Efficiency</td><td style="color:var(--amber);font-weight:700">7.7 %</td><td style="color:var(--green);font-weight:700">33.1 %</td><td style="color:var(--cyan-lt);font-weight:700">84.0 %</td></tr>
+      <tr class="highlight"><td>ERP @ 15 W</td><td style="color:var(--amber);font-weight:700">1.16 W</td><td style="color:var(--green);font-weight:700">4.97 W</td><td style="color:var(--cyan-lt);font-weight:700">12.6 W</td></tr>
+      <tr><td>Bandwidth</td><td>~2.5 kHz</td><td>~9 kHz</td><td>~12 kHz</td></tr>
+      <tr><td>Cap Voltage @ 15 W</td><td>~4.4 kV</td><td>~2.4 kV</td><td>~1.9 kV</td></tr>
+      <tr><td>NVIS Range</td><td>0&ndash;600 km (24h)</td><td>0&ndash;600 km (day)</td><td>0&ndash;600 km (midday)</td></tr>
+      <tr><td>NVIS Availability</td><td>24 hours</td><td>Daytime</td><td>Midday / solar max</td></tr>
+      <tr><td>Weight</td><td>~4.5 kg (9.9 lb)</td><td>(same loop)</td><td>(same loop)</td></tr>
+      <tr><td>Max Power</td><td>15 W (7.5 kV cap)</td><td>15 W (7.5 kV cap)</td><td>15 W (7.5 kV cap)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ════════ Charts ════════ -->
+<section>
+  <h2 class="section-title">Efficiency &amp; ERP Comparison</h2>
+  <div class="charts-row">
+    <div class="chart-box">
+      <h3>Efficiency (%)</h3>
+      <div class="bar-chart" id="eff-chart">
+        <div class="bar-group">
+          <div class="bar" style="height:17px; background:var(--amber);">
+            <span class="bar-label c-amber">7.7%</span>
+          </div>
+          <span class="bar-band">80 m</span>
+        </div>
+        <div class="bar-group">
+          <div class="bar" style="height:73px; background:var(--green);">
+            <span class="bar-label c-green">33.1%</span>
+          </div>
+          <span class="bar-band">40 m</span>
+        </div>
+        <div class="bar-group">
+          <div class="bar" style="height:185px; background:var(--cyan-lt);">
+            <span class="bar-label c-cyan">84.0%</span>
+          </div>
+          <span class="bar-band">20 m</span>
+        </div>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>ERP @ 15 W Input (Watts)</h3>
+      <div class="bar-chart" id="erp-chart">
+        <div class="bar-group">
+          <div class="bar" style="height:18px; background:var(--amber);">
+            <span class="bar-label c-amber">1.16 W</span>
+          </div>
+          <span class="bar-band">80 m</span>
+        </div>
+        <div class="bar-group">
+          <div class="bar" style="height:75px; background:var(--green);">
+            <span class="bar-label c-green">4.97 W</span>
+          </div>
+          <span class="bar-band">40 m</span>
+        </div>
+        <div class="bar-group">
+          <div class="bar" style="height:190px; background:var(--cyan-lt);">
+            <span class="bar-label c-cyan">12.6 W</span>
+          </div>
+          <span class="bar-band">20 m</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Pie Charts ════════ -->
+<section>
+  <h2 class="section-title">Loss Budget</h2>
+  <div class="pies-row">
+    <!-- 80m pie -->
+    <div class="pie-box">
+      <h3 class="c-amber">80 m &mdash; 7.7% Efficiency</h3>
+      <svg width="180" height="180" viewBox="0 0 180 180" id="pie80"></svg>
+      <div class="pie-legend">
+        <span style="background:#66bb6a"></span>Rr 3.0 m&Omega; (radiated)<br>
+        <span style="background:#ef5350"></span>Rl 28.1 m&Omega; (Cu loss)<br>
+        <span style="background:#42a5f5"></span>Rc 8.0 m&Omega; (cap ESR)
+      </div>
+    </div>
+    <!-- 40m pie -->
+    <div class="pie-box">
+      <h3 class="c-green">40 m &mdash; 33.1% Efficiency</h3>
+      <svg width="180" height="180" viewBox="0 0 180 180" id="pie40"></svg>
+      <div class="pie-legend">
+        <span style="background:#66bb6a"></span>Rr 11.8 m&Omega; (radiated)<br>
+        <span style="background:#ef5350"></span>Rl 19.9 m&Omega; (Cu loss)<br>
+        <span style="background:#42a5f5"></span>Rc 4.0 m&Omega; (cap ESR)
+      </div>
+    </div>
+    <!-- 20m pie -->
+    <div class="pie-box">
+      <h3 class="c-cyan">20 m &mdash; 84.0% Efficiency</h3>
+      <svg width="180" height="180" viewBox="0 0 180 180" id="pie20"></svg>
+      <div class="pie-legend">
+        <span style="background:#66bb6a"></span>Rr 189 m&Omega; (radiated)<br>
+        <span style="background:#ef5350"></span>Rl 28.1 m&Omega; (Cu loss)<br>
+        <span style="background:#42a5f5"></span>Rc 8.0 m&Omega; (cap ESR)
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ Build Guide ════════ -->
+<section>
+  <h2 class="section-title">Build &amp; Installation Guide</h2>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content">
+        <h4>Form 2 Circular Loops</h4>
+        <p>Cut 2&times; 3.77 m of 40 mm Cu tube. Silver-plate (electroless). Fill with sand, bend into &Oslash; 1.20 m circles. Leave 20 mm gap for capacitor leads.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content">
+        <h4>Series Jumper (50 mm)</h4>
+        <p>Stack loops coaxially, 50 mm apart. Silver-solder 50 mm Cu jumper on one side. Use PVC spacers on 4 posts.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content">
+        <h4>Coupling Loop</h4>
+        <p>Bend 78 cm of RG-213 into 240 mm Faraday loop. Mount at bottom of main loop. Shield both ends, center conductor one end. SO-239 connector.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content">
+        <h4>Variable Vacuum Cap</h4>
+        <p>In IP65 box: Vacuum variable 20&ndash;250 pF, 7.5 kV, Q &asymp; 30,000 (stepper-driven). Covers all 3 bands &mdash; no fixed cap needed.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-content">
+        <h4>DPDT Turn-Switch Relay</h4>
+        <p>Single DPDT relay switches turns only (no cap relay needed). ON = 80m (2-Turn). OFF = 40m/20m (1-Turn).</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">6</div>
+      <div class="step-content">
+        <h4>Mag-Mount Install</h4>
+        <p>4&times; NdFeB 40 kg mounts on clean sedan roof. 80 mm HDPE posts + 50 mm extension clips for Turn 2. Total profile ~13 cm.</p>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">7</div>
+      <div class="step-content">
+        <h4>Tri-Band Operation</h4>
+        <p>ESP32 selects band: 80m &rarr; relay ON + stepper tune. 40m/20m &rarr; relay OFF + stepper to ~190 pF or ~47 pF. Bandwidth: 2.5/9/12 kHz.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════ BOM ════════ -->
+<section>
+  <h2 class="section-title">Bill of Materials</h2>
+  <div class="bom-grid">
+    <div class="bom-item"><span class="name">40 mm Ag-Cu tube</span><span class="price">$90</span></div>
+    <div class="bom-item"><span class="name">Variable vacuum cap (7.5kV Q=30k)</span><span class="price">$200</span></div>
+    <div class="bom-item"><span class="name">DPDT relay</span><span class="price">$15</span></div>
+    <div class="bom-item"><span class="name">NdFeB mag-mounts</span><span class="price">$30</span></div>
+    <div class="bom-item"><span class="name">HDPE + clips</span><span class="price">$18</span></div>
+    <div class="bom-item"><span class="name">Stepper kit</span><span class="price">$18</span></div>
+    <div class="bom-item"><span class="name">ESP32</span><span class="price">$12</span></div>
+    <div class="bom-item"><span class="name">IP65 box</span><span class="price">$14</span></div>
+    <div class="bom-item"><span class="name">Ag plating</span><span class="price">$30</span></div>
+    <div class="bom-item"><span class="name">Hardware</span><span class="price">$18</span></div>
+  </div>
+  <div class="bom-total">Total: ~$445</div>
+</section>
+
+<!-- ════════ Physical Changes ════════ -->
+<section>
+  <h2 class="section-title">Physical Redesign vs Previous</h2>
+  <table class="data-table">
+    <thead>
+      <tr><th>Parameter</th><th>Previous (Oval)</th><th style="color:var(--gold)">Redesigned (Circle)</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Loop Shape</td><td>1.40 &times; 0.80 m oval</td><td style="color:var(--green)">&Oslash; 1.20 m circle (+29% area)</td></tr>
+      <tr><td>Tube Diameter</td><td>35 mm Ag-Cu</td><td style="color:var(--green)">40 mm Ag-Cu (-12.5% Rl)</td></tr>
+      <tr><td>Variable Cap</td><td>20-250 pF, 5 kV, Q=15k</td><td style="color:var(--green)">20-250 pF, 7.5 kV, Q=30k</td></tr>
+      <tr><td>Fixed Cap</td><td>100 pF, 7.5 kV</td><td style="color:var(--green)">Eliminated (not needed)</td></tr>
+      <tr><td>Relay</td><td>2&times; ganged (turn + cap)</td><td style="color:var(--green)">1&times; DPDT (turn only)</td></tr>
+      <tr><td>Max Power</td><td>50 W</td><td style="color:var(--green)">15 W</td></tr>
+      <tr><td>Profile</td><td>~13 cm</td><td style="color:var(--green)">~13 cm (unchanged)</td></tr>
+      <tr><td>BOM</td><td>~$550</td><td style="color:var(--green)">~$445</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</div><!-- /.container -->
+
+<!-- ════════ Footer ════════ -->
+<footer>
+  <div class="container">
+    <strong>TRI-BAND NVIS 80m/40m/20m</strong> &mdash; &Oslash; 1.20 m Circle Sedan-Roof Antenna &mdash;
+    <strong>HS2GJG</strong> &mdash;
+    3.5&ndash;4.0 / 7.0&ndash;7.3 / 14.0&ndash;14.35 MHz &mdash;
+    15 W &mdash; &eta;-Optimized &mdash; Generated 2026-02-25
+  </div>
+</footer>
+
+<!-- ════════ Pie Chart JS ════════ -->
+<script>
+function drawPie(id, data, colors) {
+  const svg = document.getElementById(id);
+  const cx = 90, cy = 90, r = 75;
+  const total = data.reduce((a, b) => a + b, 0);
+  let cumAngle = -Math.PI / 2;
+  data.forEach((val, i) => {
+    const angle = (val / total) * 2 * Math.PI;
+    const x1 = cx + r * Math.cos(cumAngle);
+    const y1 = cy + r * Math.sin(cumAngle);
+    const x2 = cx + r * Math.cos(cumAngle + angle);
+    const y2 = cy + r * Math.sin(cumAngle + angle);
+    const large = angle > Math.PI ? 1 : 0;
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d',
+      `M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${large},1 ${x2},${y2} Z`);
+    path.setAttribute('fill', colors[i]);
+    path.setAttribute('stroke', '#fff');
+    path.setAttribute('stroke-width', '2');
+    svg.appendChild(path);
+    // percentage label
+    const midAngle = cumAngle + angle / 2;
+    const lx = cx + r * 0.6 * Math.cos(midAngle);
+    const ly = cy + r * 0.6 * Math.sin(midAngle);
+    const pct = ((val / total) * 100).toFixed(1);
+    if (parseFloat(pct) > 5) {
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', lx);
+      text.setAttribute('y', ly + 4);
+      text.setAttribute('text-anchor', 'middle');
+      text.setAttribute('fill', '#fff');
+      text.setAttribute('font-size', '12');
+      text.setAttribute('font-weight', '700');
+      text.textContent = pct + '%';
+      svg.appendChild(text);
+    }
+    cumAngle += angle;
+  });
+}
+drawPie('pie80', [3.0, 28.1, 8.0], ['#66bb6a', '#ef5350', '#42a5f5']);
+drawPie('pie40', [11.8, 19.9, 4.0],  ['#66bb6a', '#ef5350', '#42a5f5']);
+drawPie('pie20', [189, 28.1, 8.0],   ['#66bb6a', '#ef5350', '#42a5f5']);
+</script>
+
+<!-- ════════ 3D Radiation Pattern (Canvas) ════════ -->
+<script>
+(function() {
+  const bands = [
+    { name: '80 m', eff: 7.7, erp: 1.16, color: [255,171,64], css: '#ffab40', nvis: '24 hours' },
+    { name: '40 m', eff: 33.1, erp: 4.97, color: [102,187,106], css: '#66bb6a', nvis: 'Daytime' },
+    { name: '20 m', eff: 84.0, erp: 12.6, color: [77,208,225], css: '#4dd0e1', nvis: 'Midday' },
+  ];
+
+  // 3D projection helpers
+  const elev = 25 * Math.PI / 180;  // camera elevation
+  const cosE = Math.cos(elev), sinE = Math.sin(elev);
+  function proj(x3, y3, z3, cx, cy, S) {
+    // y3 = up, x3 = right, z3 = toward viewer
+    const px = x3;
+    const py = -y3 * cosE + z3 * sinE;
+    const pz = y3 * sinE + z3 * cosE;  // depth for sorting
+    return { x: cx + px * S, y: cy + py * S, z: pz };
+  }
+
+  const row = document.getElementById('patternRow');
+  const W = 380, H = 380;
+
+  bands.forEach(b => {
+    const can = document.createElement('canvas');
+    can.width = W * 2; can.height = H * 2;
+    can.style.width = W + 'px'; can.style.height = H + 'px';
+    const ctx = can.getContext('2d');
+    ctx.scale(2, 2);
+    const cx = W / 2, cy = H * 0.58, S = 120;
+
+    // Background
+    ctx.fillStyle = '#0a1020';
+    ctx.fillRect(0, 0, W, H);
+
+    // Ground plane (ellipse)
+    const gR = 1.5;
+    ctx.beginPath();
+    for (let i = 0; i <= 80; i++) {
+      const a = (i / 80) * Math.PI * 2;
+      const p = proj(gR * Math.cos(a), 0, gR * Math.sin(a), cx, cy, S);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    }
+    ctx.fillStyle = 'rgba(15,26,46,0.6)';
+    ctx.fill();
+
+    // Ground grid
+    ctx.strokeStyle = '#1a3058';
+    ctx.lineWidth = 0.5;
+    for (let i = -6; i <= 6; i++) {
+      const g = i * 0.25;
+      ctx.beginPath();
+      for (let j = 0; j <= 40; j++) {
+        const t = -1.5 + 3.0 * j / 40;
+        const p = proj(g, 0, t, cx, cy, S);
+        j === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+      ctx.beginPath();
+      for (let j = 0; j <= 40; j++) {
+        const t = -1.5 + 3.0 * j / 40;
+        const p = proj(t, 0, g, cx, cy, S);
+        j === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+      }
+      ctx.stroke();
+    }
+
+    // Antenna loop (circle on ground)
+    ctx.beginPath();
+    const aR = 0.18;
+    for (let i = 0; i <= 60; i++) {
+      const a = (i / 60) * Math.PI * 2;
+      const p = proj(aR * Math.cos(a), 0.02, aR * Math.sin(a), cx, cy, S);
+      i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y);
+    }
+    ctx.strokeStyle = '#d4852e';
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+
+    // 3D donut radiation pattern: E(θ) ∝ sin(θ), upper hemisphere
+    // Render as filled quads sorted by depth (painter's algorithm)
+    // Color gradient: zenith=warm highlight, horizon=band color, with rainbow hue shift by azimuth
+    const nT = 40, nP = 60;
+    const quads = [];
+    for (let i = 0; i < nT; i++) {
+      const t0 = (i / nT) * Math.PI / 2;
+      const t1 = ((i + 1) / nT) * Math.PI / 2;
+      for (let j = 0; j < nP; j++) {
+        const p0 = (j / nP) * Math.PI * 2;
+        const p1 = ((j + 1) / nP) * Math.PI * 2;
+        const corners = [[t0, p0], [t0, p1], [t1, p1], [t1, p0]];
+        const pts = corners.map(([t, p]) => {
+          const r = Math.sin(t);
+          const x3 = r * Math.sin(t) * Math.cos(p);
+          const y3 = r * Math.cos(t);
+          const z3 = r * Math.sin(t) * Math.sin(p);
+          return proj(x3, y3, z3, cx, cy, S);
+        });
+        const avgZ = pts.reduce((s, p) => s + p.z, 0) / 4;
+        const midT = (t0 + t1) / 2;
+        const midP = (p0 + p1) / 2;
+        quads.push({ pts, avgZ, midT, midP });
+      }
+    }
+    quads.sort((a, q) => q.avgZ - a.avgZ);
+
+    // HSL helper
+    function hsl2rgb(h, s, l) {
+      h = ((h % 360) + 360) % 360;
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs((h / 60) % 2 - 1));
+      const m = l - c / 2;
+      let r1, g1, b1;
+      if (h < 60) { r1=c; g1=x; b1=0; }
+      else if (h < 120) { r1=x; g1=c; b1=0; }
+      else if (h < 180) { r1=0; g1=c; b1=x; }
+      else if (h < 240) { r1=0; g1=x; b1=c; }
+      else if (h < 300) { r1=x; g1=0; b1=c; }
+      else { r1=c; g1=0; b1=x; }
+      return [Math.round((r1+m)*255), Math.round((g1+m)*255), Math.round((b1+m)*255)];
+    }
+
+    // Base hue for each band
+    const baseHue = { '#ffab40': 30, '#66bb6a': 130, '#4dd0e1': 185 }[b.css] || 30;
+
+    quads.forEach(q => {
+      // Elevation factor: 0 at horizon, 1 at zenith
+      const elevF = Math.sin(q.midT);
+      // Azimuth hue shift: ±40° around base hue
+      const hueShift = Math.sin(q.midP) * 40;
+      const hue = baseHue + hueShift;
+      // Saturation: high everywhere, slightly less at zenith
+      const sat = 0.75 + 0.2 * (1 - elevF);
+      // Lightness: brighter at zenith (hot spot), darker at horizon
+      const light = 0.25 + 0.40 * elevF * elevF;
+      // Depth shading: brighter facing camera
+      const depthF = 0.6 + 0.4 * (1 - (q.avgZ + 1) / 2);
+
+      const [cr, cg, cb] = hsl2rgb(hue, sat, light * depthF);
+
+      ctx.beginPath();
+      ctx.moveTo(q.pts[0].x, q.pts[0].y);
+      for (let k = 1; k < 4; k++) ctx.lineTo(q.pts[k].x, q.pts[k].y);
+      ctx.closePath();
+      ctx.fillStyle = `rgba(${cr},${cg},${cb},0.72)`;
+      ctx.fill();
+      ctx.strokeStyle = `rgba(${Math.min(cr+40,255)},${Math.min(cg+40,255)},${Math.min(cb+40,255)},0.18)`;
+      ctx.lineWidth = 0.5;
+      ctx.stroke();
+    });
+
+    // Bright specular highlight at zenith top
+    const zenPt = proj(0, 0.98, 0, cx, cy, S);
+    const grad = ctx.createRadialGradient(zenPt.x, zenPt.y, 0, zenPt.x, zenPt.y, 28);
+    grad.addColorStop(0, 'rgba(255,255,255,0.35)');
+    grad.addColorStop(0.5, `rgba(${b.color.join(',')},0.15)`);
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(zenPt.x - 30, zenPt.y - 30, 60, 60);
+
+    // Outer glow around pattern
+    const glowPt = proj(0, 0.5, 0, cx, cy, S);
+    const glow = ctx.createRadialGradient(glowPt.x, glowPt.y, 30, glowPt.x, glowPt.y, S * 1.1);
+    glow.addColorStop(0, 'rgba(0,0,0,0)');
+    glow.addColorStop(0.7, 'rgba(0,0,0,0)');
+    glow.addColorStop(1, `rgba(${b.color.join(',')},0.08)`);
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, W, H);
+
+    // Wireframe elevation rings on the pattern surface
+    ctx.lineWidth = 1.2;
+    for (const deg of [15, 30, 45, 60, 75]) {
+      const t = deg * Math.PI / 180;
+      const r = Math.sin(t);
+      ctx.beginPath();
+      for (let j = 0; j <= 80; j++) {
+        const p = (j / 80) * Math.PI * 2;
+        const pt = proj(
+          r * Math.sin(t) * Math.cos(p),
+          r * Math.cos(t),
+          r * Math.sin(t) * Math.sin(p), cx, cy, S);
+        j === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+      }
+      ctx.strokeStyle = `rgba(255,255,255,0.12)`;
+      ctx.stroke();
+    }
+
+    // Meridian lines
+    for (let j = 0; j < 16; j++) {
+      const p = (j / 16) * Math.PI * 2;
+      ctx.beginPath();
+      for (let i = 0; i <= 50; i++) {
+        const t = (i / 50) * Math.PI / 2;
+        const r = Math.sin(t);
+        const pt = proj(
+          r * Math.sin(t) * Math.cos(p),
+          r * Math.cos(t),
+          r * Math.sin(t) * Math.sin(p), cx, cy, S);
+        i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+      }
+      ctx.strokeStyle = `rgba(255,255,255,0.07)`;
+      ctx.stroke();
+    }
+
+    // NVIS cone (70°-90° elevation = 0°-20° from zenith)
+    const t20 = 20 * Math.PI / 180;
+    // Boundary ring at 20° from zenith
+    ctx.beginPath();
+    const rN = Math.sin(t20);
+    for (let j = 0; j <= 60; j++) {
+      const p = (j / 60) * Math.PI * 2;
+      const pt = proj(
+        rN * Math.sin(t20) * Math.cos(p) * 1.5,
+        rN * Math.cos(t20) * 1.5,
+        rN * Math.sin(t20) * Math.sin(p) * 1.5, cx, cy, S);
+      j === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+    }
+    ctx.strokeStyle = '#ff8a65';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    // NVIS cone fill (transparent wedge)
+    ctx.beginPath();
+    const origin = proj(0, 0.02, 0, cx, cy, S);
+    ctx.moveTo(origin.x, origin.y);
+    for (let j = 0; j <= 60; j++) {
+      const p = (j / 60) * Math.PI * 2;
+      const pt = proj(
+        rN * Math.sin(t20) * Math.cos(p) * 1.5,
+        rN * Math.cos(t20) * 1.5,
+        rN * Math.sin(t20) * Math.sin(p) * 1.5, cx, cy, S);
+      ctx.lineTo(pt.x, pt.y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255,138,101,0.12)';
+    ctx.fill();
+
+    // Zenith line
+    const zen0 = proj(0, 0.02, 0, cx, cy, S);
+    const zen1 = proj(0, 1.7, 0, cx, cy, S);
+    ctx.beginPath();
+    ctx.moveTo(zen0.x, zen0.y);
+    ctx.lineTo(zen1.x, zen1.y);
+    ctx.strokeStyle = 'rgba(255,138,101,0.5)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Ionosphere arc
+    const ionoR = 1.9;
+    ctx.beginPath();
+    for (let j = 0; j <= 60; j++) {
+      const p = (j / 60) * Math.PI * 2;
+      const pt = proj(ionoR * Math.cos(p), ionoR, ionoR * Math.sin(p) * 0.3, cx, cy, S);
+      j === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y);
+    }
+    ctx.strokeStyle = 'rgba(77,208,225,0.35)';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 4]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Labels
+    ctx.fillStyle = '#ff8a65';
+    ctx.font = 'bold 10px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('Zenith', zen1.x, zen1.y - 6);
+
+    ctx.fillStyle = 'rgba(77,208,225,0.6)';
+    ctx.font = '9px sans-serif';
+    const ionoLabel = proj(ionoR * 0.8, ionoR + 0.15, 0, cx, cy, S);
+    ctx.fillText('F2 Layer', ionoLabel.x, ionoLabel.y);
+
+    // Efficiency label at pattern peak
+    const peakPt = proj(0, 1.05, 0, cx, cy, S);
+    ctx.fillStyle = b.css;
+    ctx.font = 'bold 13px sans-serif';
+    ctx.fillText(b.eff + '%', peakPt.x + 18, peakPt.y + 4);
+
+    // Ground label
+    ctx.fillStyle = '#546e7a';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'right';
+    const gndLabel = proj(1.6, 0, 0, cx, cy, S);
+    ctx.fillText('Ground', gndLabel.x, gndLabel.y + 14);
+
+    // Card assembly — must use DOM methods to preserve canvas content
+    const card = document.createElement('div');
+    card.className = 'pattern-card';
+    const h3 = document.createElement('h3');
+    h3.style.color = b.css;
+    h3.textContent = b.name;
+    card.appendChild(h3);
+    card.appendChild(can);
+    const stats = document.createElement('div');
+    stats.className = 'pattern-stats';
+    stats.innerHTML =
+      'Efficiency: <strong style="color:' + b.css + '">' + b.eff + ' %</strong><br>' +
+      'ERP @ 15 W: <strong style="color:' + b.css + '">' + b.erp + ' W</strong><br>' +
+      'NVIS: <strong>' + b.nvis + '</strong>';
+    card.appendChild(stats);
+    row.appendChild(card);
+  });
+})();
+</script>
+
+</body>
+</html>
