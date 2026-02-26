@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTL-SDR V1 + WSPR on Raspberry Pi — Setup Guide</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #0d1525;
+    --card-hover: #111d33;
+    --border: #1a2a45;
+    --text: #c8d6e5;
+    --text2: #8395a7;
+    --white: #eef2f7;
+    --gold: #ffd93d;
+    --amber: #ffab40;
+    --red: #ff6b6b;
+    --green: #6bcb77;
+    --blue: #54a0ff;
+    --cyan: #4dd0e1;
+    --purple: #c084fc;
+    --teal: #26a69a;
+    --orange: #ff9f43;
+    --pink: #fd79a8;
+    --rpi-red: #c51a4a;
+    --rpi-green: #75a928;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; color: #74b9ff; }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #0c1829 0%, #1a1a3e 40%, #2d1b4e 100%);
+    text-align: center;
+    padding: 50px 20px 40px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    background: linear-gradient(90deg, var(--gold), var(--red), var(--purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .hero .subtitle {
+    color: var(--text2);
+    font-size: 1.1rem;
+    max-width: 750px;
+    margin: 0 auto 14px;
+  }
+  .hero .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .hero .badge {
+    background: #1e3a5f;
+    color: var(--blue);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 1px solid #2e5a8f;
+  }
+  .hero .badge.warn {
+    background: #3a2008;
+    color: var(--orange);
+    border-color: #5a3a18;
+  }
+
+  /* ── Container ── */
+  .container { max-width: 920px; margin: 0 auto; padding: 24px 20px; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+  .toc h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 12px; }
+  .toc ol { padding-left: 24px; }
+  .toc li { margin: 5px 0; }
+  .toc a { color: #74b9ff; }
+
+  /* ── Section ── */
+  .section { margin: 44px 0; }
+  .section h2 {
+    font-size: 1.55rem;
+    color: var(--gold);
+    border-left: 4px solid var(--gold);
+    padding-left: 14px;
+    margin-bottom: 16px;
+  }
+  .section h3 {
+    font-size: 1.15rem;
+    color: var(--purple);
+    margin: 20px 0 10px;
+  }
+  .section h4 {
+    font-size: 1rem;
+    color: var(--green);
+    margin: 14px 0 8px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .card.warning { border-color: #e67e22; background: #1a1508; }
+  .card.warning::before {
+    content: "⚠ WARNING";
+    display: block;
+    color: #e67e22;
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card.tip { border-color: var(--green); background: #0a1a10; }
+  .card.tip::before {
+    content: "💡 TIP";
+    display: block;
+    color: var(--green);
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card.info { border-color: #2980b9; background: #0a1525; }
+  .card.info::before {
+    content: "ℹ INFO";
+    display: block;
+    color: var(--blue);
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card.critical { border-color: var(--red); background: #1a0a0a; }
+  .card.critical::before {
+    content: "🔴 CRITICAL";
+    display: block;
+    color: var(--red);
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  /* ── Code ── */
+  code {
+    background: #111a2e;
+    color: var(--green);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9em;
+  }
+  pre {
+    background: #0a1020;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  pre code { background: none; padding: 0; }
+  .prompt { color: var(--blue); }
+  .comment { color: #546e7a; }
+  .highlight { color: var(--gold); }
+  .output { color: var(--green); }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  th {
+    background: #111a2e;
+    color: var(--gold);
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid #2a3a55;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #1a2535;
+  }
+  tr:hover td { background: #111a2e; }
+  .band { color: var(--purple); font-weight: 700; }
+  .freq { color: var(--gold); font-family: monospace; }
+  .upfreq { color: var(--cyan); font-family: monospace; }
+
+  /* ── Diagram ── */
+  .diagram {
+    background: #0a0f1a;
+    border: 1px solid #1a3050;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 16px 0;
+    text-align: center;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: #74b9ff;
+    line-height: 2;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── Grids ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  @media (max-width: 650px) { .two-col { grid-template-columns: 1fr; } }
+
+  .hw-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .hw-card .hw-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+  .hw-card .hw-desc { color: var(--text2); font-size: 0.88rem; }
+  .hw-card .hw-price { color: var(--gold); font-weight: 700; margin-top: 6px; }
+
+  /* ── Comparison ── */
+  .vs-box {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 14px;
+    align-items: center;
+    margin: 16px 0;
+  }
+  @media (max-width: 650px) {
+    .vs-box { grid-template-columns: 1fr; }
+    .vs-mid { display: none; }
+  }
+  .vs-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+  }
+  .vs-mid {
+    font-size: 2rem;
+    color: var(--text2);
+    font-weight: 800;
+    text-align: center;
+  }
+
+  /* ── Steps ── */
+  ol.steps { list-style: none; padding: 0; counter-reset: step; }
+  ol.steps > li {
+    counter-increment: step;
+    margin: 10px 0;
+    padding-left: 44px;
+    position: relative;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 2px;
+    background: linear-gradient(135deg, #2980b9, #1a5276);
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+  }
+
+  /* ── Quick ref ── */
+  .quick-ref {
+    background: linear-gradient(135deg, #0c1829, #1a1a3e);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 30px 0;
+  }
+  .quick-ref h2 {
+    text-align: center;
+    color: var(--gold);
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    border: none;
+    padding: 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text2);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  footer a { color: var(--gold); }
+
+  ul { padding-left: 24px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  p { margin: 10px 0; }
+
+  @media (max-width: 650px) {
+    .hero h1 { font-size: 1.6rem; }
+    .section h2 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero">
+  <h1>WSPR Listener Station<br>RTL-SDR V1 + Raspberry Pi</h1>
+  <p class="subtitle">
+    Complete guide to setting up a 24/7 Weak Signal Propagation Reporter station
+    using the original RTL-SDR (R820T2) dongle with an HF upconverter on Raspberry Pi
+  </p>
+  <div class="badges">
+    <span class="badge">RTL-SDR V1 (R820T2)</span>
+    <span class="badge warn">Upconverter Required for HF</span>
+    <span class="badge">Raspberry Pi 3/4/5</span>
+    <span class="badge">wsprdaemon</span>
+    <span class="badge">wsprnet.org</span>
+    <span class="badge">No License Required</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ═══════════ TOC ═══════════ -->
+  <nav class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#overview">What is WSPR?</a></li>
+      <li><a href="#v1-vs-v4">RTL-SDR V1 vs V4 &mdash; Key Differences</a></li>
+      <li><a href="#architecture">System Architecture</a></li>
+      <li><a href="#hardware">Hardware Required</a></li>
+      <li><a href="#flash-os">Step 1: Flash Raspberry Pi OS</a></li>
+      <li><a href="#install-rtlsdr">Step 2: Install RTL-SDR Drivers</a></li>
+      <li><a href="#upconverter">Step 3: Upconverter Setup</a></li>
+      <li><a href="#test-reception">Step 4: Test HF Reception</a></li>
+      <li><a href="#install-wsprdaemon">Step 5: Install wsprdaemon</a></li>
+      <li><a href="#configure">Step 6: Configure wsprdaemon</a></li>
+      <li><a href="#wsprnet">Step 7: Register on WSPRnet</a></li>
+      <li><a href="#ntp">Step 8: NTP Time Sync (Critical)</a></li>
+      <li><a href="#antenna">Step 9: Antenna Setup</a></li>
+      <li><a href="#start">Step 10: Start &amp; Monitor</a></li>
+      <li><a href="#autostart">Auto-Start on Boot</a></li>
+      <li><a href="#alternative">Alternative: WSJT-X Method</a></li>
+      <li><a href="#frequencies">WSPR Frequency Reference</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#quickref">Quick Reference &mdash; Copy-Paste Commands</a></li>
+    </ol>
+  </nav>
+
+  <!-- ═══════════ 1. WHAT IS WSPR ═══════════ -->
+  <div class="section" id="overview">
+    <h2>1. What is WSPR?</h2>
+    <p><strong>WSPR</strong> (Weak Signal Propagation Reporter, pronounced &ldquo;whisper&rdquo;) is a digital protocol designed by
+       Joe Taylor, K1JT (Nobel laureate in Physics). It encodes a callsign, Maidenhead grid locator, and transmit power
+       into an ultra-narrowband signal (~6 Hz wide) transmitted in 2-minute cycles.</p>
+
+    <p>WSPR can decode signals at SNR as low as <strong>&minus;28 dB to &minus;31 dB</strong>, far below human hearing.
+       Decoded spots are uploaded to <a href="https://wsprnet.org" target="_blank">wsprnet.org</a> to build a real-time
+       global map of HF propagation.</p>
+
+    <div class="card info">
+      <strong>No ham radio license is required</strong> for receive-only WSPR monitoring. Register with an SWL
+      (Short Wave Listener) identifier on WSPRnet and contribute propagation data using just an RTL-SDR dongle,
+      an upconverter, and a simple wire antenna.
+    </div>
+
+    <h3>How WSPR Works</h3>
+    <ul>
+      <li>Transmitters send a 110.6-second message every 2 minutes (starting on even minutes)</li>
+      <li>Message contains: <strong>callsign</strong>, <strong>4-digit grid</strong>, <strong>dBm power</strong></li>
+      <li>4-FSK modulation with 1.46 Hz tone spacing</li>
+      <li>Total bandwidth: ~6 Hz &mdash; fits inside the 200 Hz WSPR sub-band</li>
+      <li>Receiver decodes and uploads &ldquo;spots&rdquo; to wsprnet.org with SNR, frequency offset, and drift</li>
+    </ul>
+  </div>
+
+  <!-- ═══════════ 2. V1 vs V4 ═══════════ -->
+  <div class="section" id="v1-vs-v4">
+    <h2>2. RTL-SDR V1 vs V4 &mdash; Key Differences</h2>
+    <p>The original RTL-SDR (V1/V2/V3) and the newer V4 have critical differences for HF WSPR reception:</p>
+
+    <div class="vs-box">
+      <div class="vs-card" style="border-color:var(--orange);">
+        <h4 style="color:var(--orange); margin-top:0;">RTL-SDR V1 / V2 / V3</h4>
+        <ul>
+          <li>Tuner: <strong>R820T / R820T2</strong></li>
+          <li>Range: <strong>24 MHz &ndash; 1.766 GHz</strong></li>
+          <li>No native HF reception below 24 MHz</li>
+          <li><strong>Requires upconverter</strong> for HF bands</li>
+          <li>Upconverter adds 100 or 125 MHz offset</li>
+          <li>Plastic or basic metal case</li>
+          <li>~$10&ndash;25 USD</li>
+        </ul>
+      </div>
+      <div class="vs-mid">vs</div>
+      <div class="vs-card" style="border-color:var(--green);">
+        <h4 style="color:var(--green); margin-top:0;">RTL-SDR Blog V4</h4>
+        <ul>
+          <li>Tuner: <strong>R828D</strong></li>
+          <li>Range: <strong>500 kHz &ndash; 1.766 GHz</strong></li>
+          <li><strong>Direct HF sampling</strong> via software</li>
+          <li>No upconverter needed</li>
+          <li>No frequency offset required</li>
+          <li>Metal case, improved shielding</li>
+          <li>~$35 USD</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card warning">
+      The RTL-SDR V1/V2/V3 <strong>cannot tune below 24 MHz</strong> natively. All HF WSPR bands
+      (160m through 10m: 1.8&ndash;28 MHz) are below this limit. You <strong>must</strong> use an HF upconverter
+      to shift the signals into the dongle&rsquo;s tunable range. This guide covers the complete upconverter setup.
+    </div>
+  </div>
+
+  <!-- ═══════════ 3. ARCHITECTURE ═══════════ -->
+  <div class="section" id="architecture">
+    <h2>3. System Architecture</h2>
+    <p>Signal flow for WSPR reception with RTL-SDR V1 + upconverter:</p>
+
+    <div class="diagram">HF Antenna
+    │
+    ▼
+┌─────────────────┐     ┌──────────────┐     ┌──────────────┐
+│   HF Upconverter │────▶│  RTL-SDR V1  │────▶│ Raspberry Pi │
+│  +100/125 MHz    │ SMA │  R820T2      │ USB │              │
+│  (Ham It Up etc) │     │  24-1766 MHz │     │  wsprdaemon  │
+└─────────────────┘     └──────────────┘     └──────┬───────┘
+                                                     │
+                                                     ▼
+                                              ┌──────────────┐
+                                              │  wsprnet.org  │
+                                              │  (Internet)   │
+                                              └──────────────┘</div>
+
+    <p>The upconverter&rsquo;s local oscillator (typically 125 MHz) shifts all HF signals upward.
+       For example, 14.0956 MHz (20m WSPR) becomes <strong>139.0956 MHz</strong>, which the R820T2
+       tuner can receive. The software then subtracts the offset to show the correct frequency.</p>
+  </div>
+
+  <!-- ═══════════ 4. HARDWARE ═══════════ -->
+  <div class="section" id="hardware">
+    <h2>4. Hardware Required</h2>
+
+    <h3>Essential Components</h3>
+    <div class="two-col">
+      <div class="hw-card">
+        <div class="hw-name" style="color:var(--rpi-red);">Raspberry Pi</div>
+        <div class="hw-desc">Pi 4 (2GB+) recommended. Pi 3B+ works for single-band.
+          Pi 5 is best for multi-band. Pi Zero 2 W is marginal.</div>
+        <div class="hw-price">$35&ndash;80</div>
+      </div>
+      <div class="hw-card">
+        <div class="hw-name" style="color:var(--blue);">RTL-SDR V1 Dongle</div>
+        <div class="hw-desc">Any RTL2832U + R820T/R820T2 based dongle. Available from
+          RTL-SDR Blog, NooElec, or generic brands on Amazon/AliExpress.</div>
+        <div class="hw-price">$10&ndash;25</div>
+      </div>
+      <div class="hw-card">
+        <div class="hw-name" style="color:var(--orange);">HF Upconverter</div>
+        <div class="hw-desc">Converts 0&ndash;30 MHz to 100&ndash;155 MHz. Common choices:
+          Ham It Up v1.3 (125 MHz LO), NooElec Ham It Up Nano,
+          SpyVerter R2 (120 MHz LO).</div>
+        <div class="hw-price">$20&ndash;50</div>
+      </div>
+      <div class="hw-card">
+        <div class="hw-name" style="color:var(--green);">HF Antenna</div>
+        <div class="hw-desc">Random wire (10&ndash;20 m) + 9:1 UnUn balun, dipole, or
+          magnetic loop. Even a 5 m wire outdoors works for strong stations.</div>
+        <div class="hw-price">$5&ndash;40</div>
+      </div>
+    </div>
+
+    <h3>Also Needed</h3>
+    <ul>
+      <li><strong>MicroSD card</strong> &mdash; 16 GB+ with Raspberry Pi OS Lite (64-bit)</li>
+      <li><strong>Power supply</strong> &mdash; official RPi PSU (5V 3A for Pi 4/5)</li>
+      <li><strong>Ethernet or WiFi</strong> &mdash; for uploading spots to WSPRnet</li>
+      <li><strong>SMA cables/adapters</strong> &mdash; antenna &rarr; upconverter &rarr; RTL-SDR (SMA-to-SMA typically)</li>
+      <li><strong>USB extension cable</strong> (1&ndash;2 m) &mdash; separates RTL-SDR from Pi to reduce USB noise on HF</li>
+      <li><strong>5V USB power</strong> for upconverter (if not bus-powered) &mdash; some upconverters draw power from RTL-SDR passthrough</li>
+    </ul>
+
+    <h3>Popular Upconverter Options</h3>
+    <table>
+      <tr>
+        <th>Model</th>
+        <th>LO Frequency</th>
+        <th>HF Range</th>
+        <th>Power</th>
+        <th>Price</th>
+      </tr>
+      <tr>
+        <td><strong>Ham It Up v1.3+</strong></td>
+        <td class="freq">125 MHz</td>
+        <td>0.5&ndash;30 MHz</td>
+        <td>USB passthrough from RTL-SDR</td>
+        <td>$40&ndash;50</td>
+      </tr>
+      <tr>
+        <td><strong>Ham It Up Nano</strong></td>
+        <td class="freq">125 MHz</td>
+        <td>0.5&ndash;30 MHz</td>
+        <td>Separate 5V micro-USB</td>
+        <td>$30</td>
+      </tr>
+      <tr>
+        <td><strong>SpyVerter R2</strong></td>
+        <td class="freq">120 MHz</td>
+        <td>0.1&ndash;30 MHz</td>
+        <td>Powered via RTL-SDR bias-tee</td>
+        <td>$45</td>
+      </tr>
+      <tr>
+        <td><strong>Generic AliExpress</strong></td>
+        <td class="freq">100 MHz</td>
+        <td>0.5&ndash;30 MHz</td>
+        <td>Separate 5V</td>
+        <td>$10&ndash;20</td>
+      </tr>
+    </table>
+
+    <div class="card tip">
+      The <strong>Ham It Up v1.3</strong> is the most popular choice and has good documentation.
+      Its 125 MHz local oscillator is TCXO-stabilized and works well with wsprdaemon&rsquo;s frequency offset setting.
+    </div>
+  </div>
+
+  <!-- ═══════════ 5. FLASH OS ═══════════ -->
+  <div class="section" id="flash-os">
+    <h2>Step 1: Flash Raspberry Pi OS</h2>
+
+    <h3>Download Raspberry Pi Imager</h3>
+    <ol class="steps">
+      <li>Download <a href="https://www.raspberrypi.com/software/" target="_blank"><strong>Raspberry Pi Imager</strong></a> on your PC/Mac</li>
+      <li>Insert MicroSD card into your computer</li>
+      <li>Choose OS: <strong>Raspberry Pi OS Lite (64-bit)</strong> &mdash; no desktop needed for headless WSPR</li>
+      <li>Click the gear/settings icon to pre-configure:
+        <ul>
+          <li>Set <strong>hostname</strong>: <code>wspr-pi</code></li>
+          <li>Enable <strong>SSH</strong> with password authentication</li>
+          <li>Set <strong>username</strong>: <code>pi</code> and a strong password</li>
+          <li>Configure <strong>WiFi</strong> (SSID + password) if not using Ethernet</li>
+          <li>Set <strong>locale/timezone</strong> to your location</li>
+        </ul>
+      </li>
+      <li>Write to SD card, eject, insert into Raspberry Pi, power on</li>
+    </ol>
+
+    <h3>Connect via SSH</h3>
+    <pre><code><span class="comment"># From your PC terminal (wait ~60 seconds after power-on):</span>
+<span class="prompt">$</span> ssh pi@wspr-pi.local
+<span class="comment"># Or use the Pi's IP address (check your router):</span>
+<span class="prompt">$</span> ssh pi@192.168.1.xxx</code></pre>
+
+    <h3>Update the System</h3>
+    <pre><code><span class="prompt">$</span> sudo apt update && sudo apt upgrade -y</code></pre>
+
+    <div class="card tip">
+      Use <strong>Raspberry Pi OS Lite</strong> (no desktop) for a lean 24/7 WSPR station.
+      It uses less RAM, CPU, and generates less electrical noise.
+    </div>
+  </div>
+
+  <!-- ═══════════ 6. INSTALL RTL-SDR ═══════════ -->
+  <div class="section" id="install-rtlsdr">
+    <h2>Step 2: Install RTL-SDR Drivers</h2>
+
+    <h3>Install rtl-sdr Package</h3>
+    <pre><code><span class="prompt">$</span> sudo apt install -y rtl-sdr librtlsdr-dev</code></pre>
+
+    <h3>Blacklist DVB-T Kernel Driver (Important!)</h3>
+    <p>Linux auto-loads a DVB-T TV driver that blocks rtl-sdr. You must blacklist it:</p>
+    <pre><code><span class="prompt">$</span> sudo bash -c 'cat &gt; /etc/modprobe.d/blacklist-rtlsdr.conf &lt;&lt;EOF
+blacklist dvb_usb_rtl28xxu
+blacklist rtl2832
+blacklist rtl2830
+EOF'
+
+<span class="prompt">$</span> sudo reboot</code></pre>
+
+    <h3>Plug in RTL-SDR V1 &amp; Verify</h3>
+    <pre><code><span class="comment"># After reboot, plug RTL-SDR V1 into a USB port</span>
+<span class="prompt">$</span> rtl_test -t
+
+<span class="comment"># Expected output:</span>
+<span class="output">Found 1 device(s):
+  0: Realtek, RTL2838UHIDIR, SN: 00000001
+
+Using device 0: Generic RTL2832U OEM
+Found Rafael Micro R820T tuner</span></code></pre>
+
+    <div class="card warning">
+      If <code>rtl_test</code> says &ldquo;No devices found&rdquo; &mdash; check the blacklist file is saved correctly,
+      reboot again, and try a different USB port. On Pi 4/5, try the <strong>USB 2.0 ports</strong> (black, not blue).
+    </div>
+
+    <h3>Check Dongle Serial Number</h3>
+    <p>If you have multiple RTL-SDR dongles, set unique serial numbers:</p>
+    <pre><code><span class="comment"># View current serial:</span>
+<span class="prompt">$</span> rtl_eeprom
+
+<span class="comment"># Set a new serial (optional, for multi-dongle setups):</span>
+<span class="prompt">$</span> rtl_eeprom -s 00000001</code></pre>
+  </div>
+
+  <!-- ═══════════ 7. UPCONVERTER ═══════════ -->
+  <div class="section" id="upconverter">
+    <h2>Step 3: Upconverter Setup</h2>
+
+    <p>This is the critical step that differs from RTL-SDR V4. The upconverter shifts HF signals
+       (1&ndash;30 MHz) upward by a fixed offset so the R820T2 tuner can receive them.</p>
+
+    <h3>Physical Connections</h3>
+    <div class="diagram">                    SMA cable           SMA male-male
+HF Antenna ────────▶ [ Upconverter ] ──────────▶ [ RTL-SDR V1 ] ────▶ USB to Pi
+                      HF IN    RF OUT             SMA IN         USB
+                     ┌─────────────┐
+                     │ Ham It Up   │
+                     │ LO: 125 MHz │
+                     │ Power: USB  │
+                     └─────────────┘</div>
+
+    <ol class="steps">
+      <li>Connect your <strong>HF antenna</strong> to the upconverter&rsquo;s <strong>HF IN</strong> (or RF IN) port via SMA cable</li>
+      <li>Connect the upconverter&rsquo;s <strong>IF OUT</strong> (or RF OUT) port to the <strong>RTL-SDR V1 SMA input</strong> with an SMA male-to-male cable</li>
+      <li>Connect RTL-SDR V1 to Raspberry Pi via <strong>USB</strong> (use a 1&ndash;2 m extension cable to reduce noise)</li>
+      <li>Power the upconverter:
+        <ul>
+          <li><strong>Ham It Up v1.3:</strong> powered via USB passthrough from RTL-SDR &mdash; no extra cable needed</li>
+          <li><strong>Ham It Up Nano:</strong> connect separate 5V micro-USB power</li>
+          <li><strong>SpyVerter R2:</strong> powered via bias-tee &mdash; enable with <code>rtl_biast -b 1</code></li>
+          <li><strong>Generic:</strong> connect separate 5V power supply</li>
+        </ul>
+      </li>
+      <li>Make sure the upconverter&rsquo;s passband switch (if present) is set to <strong>HF</strong> mode, not VHF passthrough</li>
+    </ol>
+
+    <h3>Understanding the Frequency Offset</h3>
+    <p>The upconverter&rsquo;s local oscillator (LO) frequency is added to every signal passing through it:</p>
+    <table>
+      <tr>
+        <th>WSPR Band</th>
+        <th>Actual Frequency</th>
+        <th>With 125 MHz Upconverter</th>
+        <th>With 100 MHz Upconverter</th>
+      </tr>
+      <tr>
+        <td class="band">160 m</td>
+        <td class="freq">1.836600 MHz</td>
+        <td class="upfreq">126.836600 MHz</td>
+        <td class="upfreq">101.836600 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">80 m</td>
+        <td class="freq">3.568600 MHz</td>
+        <td class="upfreq">128.568600 MHz</td>
+        <td class="upfreq">103.568600 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">40 m</td>
+        <td class="freq">7.038600 MHz</td>
+        <td class="upfreq">132.038600 MHz</td>
+        <td class="upfreq">107.038600 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">30 m</td>
+        <td class="freq">10.138700 MHz</td>
+        <td class="upfreq">135.138700 MHz</td>
+        <td class="upfreq">110.138700 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">20 m</td>
+        <td class="freq">14.095600 MHz</td>
+        <td class="upfreq">139.095600 MHz</td>
+        <td class="upfreq">114.095600 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">17 m</td>
+        <td class="freq">18.104600 MHz</td>
+        <td class="upfreq">143.104600 MHz</td>
+        <td class="upfreq">118.104600 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">15 m</td>
+        <td class="freq">21.094600 MHz</td>
+        <td class="upfreq">146.094600 MHz</td>
+        <td class="upfreq">121.094600 MHz</td>
+      </tr>
+      <tr>
+        <td class="band">10 m</td>
+        <td class="freq">28.124600 MHz</td>
+        <td class="upfreq">153.124600 MHz</td>
+        <td class="upfreq">128.124600 MHz</td>
+      </tr>
+    </table>
+
+    <div class="card critical">
+      <strong>You must tell the software about your upconverter&rsquo;s LO frequency!</strong> If the offset is wrong,
+      the receiver will tune to the wrong frequency and decode nothing. Common offsets:
+      <strong>125000000</strong> (Ham It Up), <strong>120000000</strong> (SpyVerter), <strong>100000000</strong> (generic Chinese).
+      Check your upconverter&rsquo;s documentation for the exact LO frequency.
+    </div>
+  </div>
+
+  <!-- ═══════════ 8. TEST RECEPTION ═══════════ -->
+  <div class="section" id="test-reception">
+    <h2>Step 4: Test HF Reception</h2>
+
+    <p>Before installing wsprdaemon, verify that the RTL-SDR + upconverter can receive HF signals:</p>
+
+    <h3>Quick Test with rtl_fm</h3>
+    <pre><code><span class="comment"># Install sox for audio playback (optional, for audio test)</span>
+<span class="prompt">$</span> sudo apt install -y sox
+
+<span class="comment"># Test 20m WSPR band with 125 MHz upconverter</span>
+<span class="comment"># Actual WSPR: 14.095600 MHz → Tune to: 14.095600 + 125.000 = 139.095600 MHz</span>
+<span class="prompt">$</span> rtl_fm -f 139095600 -M usb -s 12000 -g 40 - | \
+    sox -t raw -r 12000 -e signed -b 16 -c 1 - -n stats
+
+<span class="comment"># You should see signal level statistics updating.</span>
+<span class="comment"># If "RMS Pk" shows values above -40 dB, your antenna is picking up signals.</span>
+<span class="comment"># Press Ctrl+C to stop.</span></code></pre>
+
+    <h3>Test with rtl_power (Spectrum Scan)</h3>
+    <pre><code><span class="comment"># Scan 20m band region (with 125 MHz offset) for 2 minutes</span>
+<span class="prompt">$</span> timeout 120 rtl_power -f 139000000:139200000:100 -g 40 -i 10 /tmp/20m_scan.csv
+
+<span class="comment"># Check if data was captured:</span>
+<span class="prompt">$</span> wc -l /tmp/20m_scan.csv
+<span class="comment"># Should show many lines of data</span></code></pre>
+
+    <h3>Verify Gain Setting</h3>
+    <pre><code><span class="comment"># List available gain values for your RTL-SDR:</span>
+<span class="prompt">$</span> rtl_test -t 2&gt;&amp;1 | grep "Supported gain"
+
+<span class="comment"># Typical R820T2 gains (dB):</span>
+<span class="output">Supported gain values: 0.0, 0.9, 1.4, 2.7, 3.7, 7.7, 8.7, 12.5,
+  14.4, 15.7, 16.6, 19.7, 20.7, 22.9, 25.4, 28.0, 29.7, 32.8,
+  33.8, 36.4, 37.2, 38.6, 40.2, 42.1, 43.4, 43.9, 44.5, 48.0, 49.6</span>
+
+<span class="comment"># For WSPR, start with gain 40-44 dB. Adjust if needed.</span></code></pre>
+
+    <div class="card tip">
+      If you hear/see nothing, double-check: (1) upconverter is powered on, (2) SMA cables are tight,
+      (3) antenna is connected, (4) frequency offset is correct. Try a broadcast AM station first
+      (e.g., tune to 125.0 + your local AM frequency in MHz) to confirm the upconverter works.
+    </div>
+  </div>
+
+  <!-- ═══════════ 9. INSTALL WSPRDAEMON ═══════════ -->
+  <div class="section" id="install-wsprdaemon">
+    <h2>Step 5: Install wsprdaemon</h2>
+
+    <p><a href="https://github.com/rrobinett/wsprdaemon" target="_blank"><strong>wsprdaemon</strong></a> is the recommended
+       all-in-one WSPR monitoring solution. It handles RTL-SDR control, WSPR decoding, and spot uploading automatically.</p>
+
+    <h3>Install Dependencies</h3>
+    <pre><code><span class="prompt">$</span> sudo apt install -y git build-essential libfftw3-dev \
+    libsamplerate0-dev libsndfile1-dev curl bc sox</code></pre>
+
+    <h3>Clone &amp; Install wsprdaemon</h3>
+    <pre><code><span class="prompt">$</span> cd ~
+<span class="prompt">$</span> git clone https://github.com/rrobinett/wsprdaemon.git
+<span class="prompt">$</span> cd wsprdaemon
+
+<span class="comment"># Run the installer (compiles wsprd decoder and helper tools)</span>
+<span class="prompt">$</span> ./wsprdaemon.sh -i
+
+<span class="comment"># This may take 5-15 minutes on Pi 3/4. It will:</span>
+<span class="comment"># - Compile wsprd (WSPR decoder)</span>
+<span class="comment"># - Compile kiwirecorder (if needed)</span>
+<span class="comment"># - Set up cron job for auto-start</span>
+<span class="comment"># - Create default config file</span></code></pre>
+
+    <div class="card info">
+      wsprdaemon supports RTL-SDR dongles natively and handles the frequency offset for upconverters.
+      It runs as a background daemon, automatically starts on boot, and uploads spots every 2-minute cycle.
+    </div>
+  </div>
+
+  <!-- ═══════════ 10. CONFIGURE WSPRDAEMON ═══════════ -->
+  <div class="section" id="configure">
+    <h2>Step 6: Configure wsprdaemon</h2>
+
+    <p>This is the most important step. Edit the configuration file to match your station:</p>
+
+    <pre><code><span class="prompt">$</span> cd ~/wsprdaemon
+<span class="prompt">$</span> nano wsprdaemon.conf</code></pre>
+
+    <h3>Key Configuration Settings</h3>
+    <pre><code><span class="comment">### Station Identity ###</span>
+MY_CALL="<span class="highlight">YOUR_CALLSIGN</span>"    <span class="comment"># Your callsign or SWL ID (e.g., "HS2GJG")</span>
+MY_GRID="<span class="highlight">OK03xx</span>"            <span class="comment"># Your 6-character Maidenhead grid locator</span>
+
+<span class="comment">### Receiver Definition ###</span>
+<span class="comment"># Format: "NAME  TYPE  DEVICE_ID  [CONVERTER_OFFSET]"</span>
+<span class="comment"># The CONVERTER_OFFSET is your upconverter's LO frequency in Hz!</span>
+RECEIVER_LIST=(
+  "RTL_V1  RTL-SDR  0  <span class="highlight">125000000</span>"
+)
+<span class="comment">#                       ↑↑↑↑↑↑↑↑↑</span>
+<span class="comment"># This is the upconverter offset in Hz:</span>
+<span class="comment">#   125000000 = 125 MHz (Ham It Up)</span>
+<span class="comment">#   120000000 = 120 MHz (SpyVerter R2)</span>
+<span class="comment">#   100000000 = 100 MHz (generic Chinese)</span>
+
+<span class="comment">### Band Schedule ###</span>
+<span class="comment"># Which bands to monitor (wsprdaemon hops between them)</span>
+WSPR_SCHEDULE=(
+  "RTL_V1  20m"    <span class="comment"># 14.095600 MHz — daytime, most active</span>
+  "RTL_V1  40m"    <span class="comment"># 7.038600 MHz  — nighttime</span>
+  "RTL_V1  30m"    <span class="comment"># 10.138700 MHz — day &amp; night</span>
+)
+
+<span class="comment">### Upload Settings ###</span>
+WSPRNET_UPLOAD="yes"      <span class="comment"># Upload spots to wsprnet.org</span></code></pre>
+
+    <div class="card critical">
+      <strong>The <code>CONVERTER_OFFSET</code> value is critical!</strong> This tells wsprdaemon to add 125000000 Hz
+      (or your upconverter&rsquo;s LO frequency) when tuning the RTL-SDR. Without this, it will tune to the wrong
+      frequency and decode nothing. <strong>Verify your upconverter&rsquo;s exact LO frequency</strong> from its documentation.
+    </div>
+
+    <h3>Example Configurations</h3>
+
+    <h4>Single-Band (20m only, simplest)</h4>
+    <pre><code>MY_CALL="HS2GJG"
+MY_GRID="OK03fb"
+
+RECEIVER_LIST=(
+  "RTL_V1  RTL-SDR  0  125000000"
+)
+
+WSPR_SCHEDULE=(
+  "RTL_V1  20m"
+)</code></pre>
+
+    <h4>Multi-Band (time-shared hopping)</h4>
+    <pre><code>MY_CALL="HS2GJG"
+MY_GRID="OK03fb"
+
+RECEIVER_LIST=(
+  "RTL_V1  RTL-SDR  0  125000000"
+)
+
+<span class="comment"># wsprdaemon hops between bands each 2-minute cycle</span>
+WSPR_SCHEDULE=(
+  "RTL_V1  20m"
+  "RTL_V1  40m"
+  "RTL_V1  30m"
+  "RTL_V1  80m"
+)</code></pre>
+
+    <h4>Generic 100 MHz Upconverter</h4>
+    <pre><code>RECEIVER_LIST=(
+  "RTL_V1  RTL-SDR  0  <span class="highlight">100000000</span>"
+)</code></pre>
+
+    <h3>Gain Settings (Optional)</h3>
+    <pre><code><span class="comment"># If default gain is too high/low, add to config:</span>
+RTL_SDR_GAIN="42.1"   <span class="comment"># dB — typical good value for HF</span>
+
+<span class="comment"># Or set to "auto" for automatic gain:</span>
+RTL_SDR_GAIN="auto"</code></pre>
+
+    <div class="card tip">
+      Start with <strong>20m band only</strong> during daytime for your first test. It&rsquo;s the most active WSPR band
+      and you should see decoded stations within the first 2&ndash;4 minute cycle if everything is working.
+    </div>
+  </div>
+
+  <!-- ═══════════ 11. WSPRNET ═══════════ -->
+  <div class="section" id="wsprnet">
+    <h2>Step 7: Register on WSPRnet</h2>
+
+    <ol class="steps">
+      <li>Go to <a href="https://wsprnet.org" target="_blank"><strong>wsprnet.org</strong></a></li>
+      <li>Click <strong>&ldquo;Create Account&rdquo;</strong> (top right corner)</li>
+      <li>Enter your callsign (or SWL ID like &ldquo;SWL-YourName&rdquo;) and email address</li>
+      <li>Verify your email and set a password</li>
+      <li>Your decoded spots will appear on the <a href="https://wsprnet.org/drupal/wsprnet/map" target="_blank">global WSPR map</a></li>
+    </ol>
+
+    <div class="card info">
+      <strong>No ham license required!</strong> WSPR listening is receive-only. You can register with any identifier.
+      Licensed hams use their callsign; SWLs use &ldquo;SWL-Name&rdquo; or similar.
+    </div>
+
+    <h3>Find Your Grid Locator</h3>
+    <p>Visit <a href="https://www.levinecentral.com/ham/grid_square.php" target="_blank">levinecentral.com/ham/grid_square.php</a>
+       or search &ldquo;Maidenhead grid locator&rdquo; &mdash; enter your address to get your 6-character grid
+       (e.g., <code>OK03fb</code>). Use this in your wsprdaemon config.</p>
+  </div>
+
+  <!-- ═══════════ 12. NTP ═══════════ -->
+  <div class="section" id="ntp">
+    <h2>Step 8: NTP Time Sync (Critical!)</h2>
+
+    <p>WSPR decoding requires <strong>time accuracy within &plusmn;2 seconds</strong>. The Raspberry Pi has no
+       real-time clock (RTC) &mdash; it relies entirely on NTP (Network Time Protocol) to stay synchronized.</p>
+
+    <h3>Verify NTP Is Active</h3>
+    <pre><code><span class="prompt">$</span> timedatectl status
+
+<span class="comment"># Look for these two lines:</span>
+<span class="output">System clock synchronized: yes
+            NTP service: active</span></code></pre>
+
+    <h3>If NTP Is Not Active</h3>
+    <pre><code><span class="prompt">$</span> sudo timedatectl set-ntp true
+<span class="prompt">$</span> sudo systemctl enable systemd-timesyncd
+<span class="prompt">$</span> sudo systemctl start systemd-timesyncd</code></pre>
+
+    <h3>Set Correct Timezone</h3>
+    <pre><code><span class="prompt">$</span> sudo timedatectl set-timezone Asia/Bangkok
+<span class="comment"># Or use raspi-config for interactive selection:</span>
+<span class="prompt">$</span> sudo raspi-config   <span class="comment"># → Localisation → Timezone</span></code></pre>
+
+    <h3>Optional: Install chrony for Better Accuracy</h3>
+    <pre><code><span class="comment"># chrony is more accurate than systemd-timesyncd</span>
+<span class="prompt">$</span> sudo apt install -y chrony
+<span class="prompt">$</span> sudo systemctl enable chrony
+<span class="prompt">$</span> sudo systemctl start chrony
+
+<span class="comment"># Check sync status:</span>
+<span class="prompt">$</span> chronyc tracking
+<span class="comment"># Look for "System time" offset — should be &lt; 0.1 seconds</span></code></pre>
+
+    <div class="card critical">
+      If time is off by more than 2 seconds, <strong>WSPR decoding will fail completely</strong>.
+      Always verify NTP sync before starting wsprdaemon. If your Pi loses internet,
+      the clock will drift and spots will stop.
+    </div>
+  </div>
+
+  <!-- ═══════════ 13. ANTENNA ═══════════ -->
+  <div class="section" id="antenna">
+    <h2>Step 9: Antenna Setup</h2>
+
+    <div class="two-col">
+      <div class="hw-card" style="border-color:var(--orange);">
+        <div class="hw-name" style="color:var(--orange);">Random Wire + 9:1 UnUn</div>
+        <div class="hw-desc">
+          <strong>Easiest option.</strong> Run 10&ndash;20 m of insulated wire outside, as high as possible.
+          Connect to a 9:1 UnUn balun &rarr; short coax &rarr; SMA adapter &rarr; upconverter HF IN.
+          Add a ground wire or counterpoise for better performance.
+        </div>
+        <div class="hw-price">$10&ndash;25</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--blue);">
+        <div class="hw-name" style="color:var(--blue);">Dipole / Inverted-V</div>
+        <div class="hw-desc">
+          <strong>Best for single band.</strong> Total length = 468 / freq(MHz) in feet.
+          Example: 20m dipole = 33 ft total. Hang in inverted-V from a single support.
+          Feed with coax + 1:1 balun.
+        </div>
+        <div class="hw-price">$15&ndash;30</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--green);">
+        <div class="hw-name" style="color:var(--green);">Mini Whip / Active Antenna</div>
+        <div class="hw-desc">
+          <strong>Compact &amp; broadband.</strong> Great for limited space. Mount outside, away from noise sources.
+          Needs 5V power (some use bias-tee). Wideband coverage 10 kHz&ndash;30 MHz.
+        </div>
+        <div class="hw-price">$15&ndash;40</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--purple);">
+        <div class="hw-name" style="color:var(--purple);">Magnetic Loop</div>
+        <div class="hw-desc">
+          <strong>Best noise rejection.</strong> Excellent for noisy urban environments.
+          Compact, can work indoors. Narrowband &mdash; tune to your target WSPR band.
+        </div>
+        <div class="hw-price">$30&ndash;100+</div>
+      </div>
+    </div>
+
+    <div class="card tip">
+      WSPR is incredibly sensitive &mdash; even a 5 m wire strung out a window will decode stations
+      worldwide on 20m during daytime. Start simple, upgrade later. The <strong>antenna outdoors</strong> matters
+      more than the antenna type.
+    </div>
+
+    <div class="card warning">
+      The RTL-SDR V1 + upconverter is more susceptible to <strong>strong signal overload</strong> than the V4.
+      If you&rsquo;re near AM broadcast towers, you may need a <strong>high-pass filter</strong> (cut-off ~1.8 MHz)
+      between the antenna and upconverter to block MW interference.
+    </div>
+  </div>
+
+  <!-- ═══════════ 14. START ═══════════ -->
+  <div class="section" id="start">
+    <h2>Step 10: Start &amp; Monitor</h2>
+
+    <h3>Start wsprdaemon</h3>
+    <pre><code><span class="prompt">$</span> cd ~/wsprdaemon
+
+<span class="comment"># Start all configured receivers:</span>
+<span class="prompt">$</span> ./wsprdaemon.sh -a
+
+<span class="comment"># Check status:</span>
+<span class="prompt">$</span> ./wsprdaemon.sh -s
+
+<span class="comment"># View live decoded spots:</span>
+<span class="prompt">$</span> tail -f /tmp/wsprdaemon/wsprd.log
+
+<span class="comment"># Stop all receivers:</span>
+<span class="prompt">$</span> ./wsprdaemon.sh -z</code></pre>
+
+    <h3>Verify Spots Are Being Uploaded</h3>
+    <ol class="steps">
+      <li>Wait 4&ndash;6 minutes for at least two complete 2-minute cycles</li>
+      <li>Go to <a href="https://wsprnet.org/drupal/wsprnet/spots" target="_blank">wsprnet.org/drupal/wsprnet/spots</a></li>
+      <li>Search for your callsign in the &ldquo;Reporter&rdquo; field</li>
+      <li>You should see decoded spots with transmitter callsign, SNR, frequency, and distance</li>
+    </ol>
+
+    <h3>What a Decoded Spot Looks Like</h3>
+    <pre><code><span class="output">Timestamp  Call     MHz        SNR  Drift  Grid   Power  Reporter  RGrid    km
+2026-02-26 08:02  JA1ABC  14.097052  -18    0    PM95    37     HS2GJG   OK03   4523
+2026-02-26 08:02  VK2XYZ  14.097118  -22    1    QF56    30     HS2GJG   OK03   7891
+2026-02-26 08:04  W6DEF   14.097034  -15    0    CM87    33     HS2GJG   OK03  13402</span></code></pre>
+
+    <div class="card tip">
+      During your first test, try <strong>20m band during local daytime</strong> (08:00&ndash;16:00 UTC+7).
+      You should see Japanese, Australian, and North American stations within the first few cycles.
+      If you see nothing after 10 minutes, check the troubleshooting section.
+    </div>
+  </div>
+
+  <!-- ═══════════ 15. AUTOSTART ═══════════ -->
+  <div class="section" id="autostart">
+    <h2>Auto-Start on Boot</h2>
+
+    <p>wsprdaemon automatically adds itself to cron during installation. Verify:</p>
+
+    <pre><code><span class="prompt">$</span> crontab -l
+<span class="comment"># Should show a wsprdaemon entry like:</span>
+<span class="output">*/2 * * * * /home/pi/wsprdaemon/wsprdaemon.sh -a &gt;/dev/null 2&gt;&amp;1</span></code></pre>
+
+    <h3>Alternative: systemd Service (More Robust)</h3>
+    <pre><code><span class="prompt">$</span> sudo nano /etc/systemd/system/wspr.service</code></pre>
+
+    <pre><code>[Unit]
+Description=WSPR RTL-SDR V1 Receiver Station
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/wsprdaemon
+ExecStart=/home/pi/wsprdaemon/wsprdaemon.sh -a
+ExecStop=/home/pi/wsprdaemon/wsprdaemon.sh -z
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target</code></pre>
+
+    <pre><code><span class="prompt">$</span> sudo systemctl daemon-reload
+<span class="prompt">$</span> sudo systemctl enable wspr.service
+<span class="prompt">$</span> sudo systemctl start wspr.service
+<span class="prompt">$</span> sudo systemctl status wspr.service</code></pre>
+
+    <div class="card tip">
+      After a power outage, your Pi will reboot and automatically resume WSPR monitoring.
+      wsprdaemon keeps its state and picks up where it left off.
+    </div>
+  </div>
+
+  <!-- ═══════════ 16. ALTERNATIVE WSJT-X ═══════════ -->
+  <div class="section" id="alternative">
+    <h2>Alternative: WSJT-X Method</h2>
+
+    <p>If you prefer a GUI or want to experiment, you can use <strong>WSJT-X</strong> with virtual audio routing.</p>
+
+    <h3>Install WSJT-X + PulseAudio</h3>
+    <pre><code><span class="prompt">$</span> sudo apt install -y wsjtx pulseaudio pulseaudio-utils
+
+<span class="comment"># Create virtual audio sink:</span>
+<span class="prompt">$</span> pactl load-module module-null-sink \
+    sink_name=wspr_audio \
+    sink_properties=device.description=WSPR_Audio</code></pre>
+
+    <h3>Pipe RTL-SDR Audio to WSJT-X</h3>
+    <pre><code><span class="comment"># Example: 20m WSPR with 125 MHz upconverter</span>
+<span class="comment"># Tune frequency = 14095600 + 125000000 = 139095600</span>
+<span class="prompt">$</span> rtl_fm -f <span class="highlight">139095600</span> -M usb -s 12000 -g 40 - | \
+    pacat --playback --device=wspr_audio \
+    --rate=12000 --format=s16le --channels=1</code></pre>
+
+    <h3>Configure WSJT-X</h3>
+    <ul>
+      <li><strong>Audio Input:</strong> Monitor of WSPR_Audio (PulseAudio)</li>
+      <li><strong>Mode:</strong> WSPR</li>
+      <li><strong>TX %:</strong> 0% (receive only!)</li>
+      <li><strong>Callsign + Grid:</strong> your station info</li>
+      <li><strong>Upload spots:</strong> checked</li>
+    </ul>
+
+    <div class="card info">
+      The WSJT-X method requires a desktop environment or VNC.
+      Enable VNC: <code>sudo raspi-config</code> &rarr; Interface Options &rarr; VNC &rarr; Enable.
+      wsprdaemon is better for headless 24/7 operation.
+    </div>
+  </div>
+
+  <!-- ═══════════ 17. FREQUENCIES ═══════════ -->
+  <div class="section" id="frequencies">
+    <h2>WSPR Frequency Reference</h2>
+
+    <table>
+      <tr>
+        <th>Band</th>
+        <th>WSPR Dial (USB)</th>
+        <th>WSPR Center</th>
+        <th>+125 MHz (Ham It Up)</th>
+        <th>Best Time</th>
+      </tr>
+      <tr>
+        <td class="band">2200 m</td>
+        <td class="freq">0.136000 MHz</td>
+        <td class="freq">0.137500 MHz</td>
+        <td class="upfreq">125.136000 MHz</td>
+        <td>Night</td>
+      </tr>
+      <tr>
+        <td class="band">630 m</td>
+        <td class="freq">0.474200 MHz</td>
+        <td class="freq">0.475700 MHz</td>
+        <td class="upfreq">125.474200 MHz</td>
+        <td>Night</td>
+      </tr>
+      <tr>
+        <td class="band">160 m</td>
+        <td class="freq">1.836600 MHz</td>
+        <td class="freq">1.838100 MHz</td>
+        <td class="upfreq">126.836600 MHz</td>
+        <td>Night</td>
+      </tr>
+      <tr>
+        <td class="band">80 m</td>
+        <td class="freq">3.568600 MHz</td>
+        <td class="freq">3.570100 MHz</td>
+        <td class="upfreq">128.568600 MHz</td>
+        <td>Night</td>
+      </tr>
+      <tr>
+        <td class="band">60 m</td>
+        <td class="freq">5.287200 MHz</td>
+        <td class="freq">5.288700 MHz</td>
+        <td class="upfreq">130.287200 MHz</td>
+        <td>Dusk/Night</td>
+      </tr>
+      <tr>
+        <td class="band">40 m</td>
+        <td class="freq">7.038600 MHz</td>
+        <td class="freq">7.040100 MHz</td>
+        <td class="upfreq">132.038600 MHz</td>
+        <td>Night</td>
+      </tr>
+      <tr>
+        <td class="band">30 m</td>
+        <td class="freq">10.138700 MHz</td>
+        <td class="freq">10.140200 MHz</td>
+        <td class="upfreq">135.138700 MHz</td>
+        <td>Day &amp; Night</td>
+      </tr>
+      <tr>
+        <td class="band">20 m</td>
+        <td class="freq">14.095600 MHz</td>
+        <td class="freq">14.097100 MHz</td>
+        <td class="upfreq">139.095600 MHz</td>
+        <td>Daytime</td>
+      </tr>
+      <tr>
+        <td class="band">17 m</td>
+        <td class="freq">18.104600 MHz</td>
+        <td class="freq">18.106100 MHz</td>
+        <td class="upfreq">143.104600 MHz</td>
+        <td>Daytime</td>
+      </tr>
+      <tr>
+        <td class="band">15 m</td>
+        <td class="freq">21.094600 MHz</td>
+        <td class="freq">21.096100 MHz</td>
+        <td class="upfreq">146.094600 MHz</td>
+        <td>Daytime</td>
+      </tr>
+      <tr>
+        <td class="band">12 m</td>
+        <td class="freq">24.924600 MHz</td>
+        <td class="freq">24.926100 MHz</td>
+        <td class="upfreq">149.924600 MHz</td>
+        <td>Daytime</td>
+      </tr>
+      <tr>
+        <td class="band">10 m</td>
+        <td class="freq">28.124600 MHz</td>
+        <td class="freq">28.126100 MHz</td>
+        <td class="upfreq">153.124600 MHz</td>
+        <td>Daytime</td>
+      </tr>
+    </table>
+
+    <div class="card info">
+      <strong>Dial frequency</strong> is the USB carrier frequency you tune to. WSPR signals appear 1400&ndash;1600 Hz above
+      the dial frequency in the audio passband. The &ldquo;WSPR Center&rdquo; column shows the actual RF frequency of signals.
+    </div>
+  </div>
+
+  <!-- ═══════════ 18. TROUBLESHOOTING ═══════════ -->
+  <div class="section" id="troubleshooting">
+    <h2>Troubleshooting</h2>
+
+    <h3 style="color:var(--red);">No Spots Decoded</h3>
+    <div class="card" style="border-color:var(--red);">
+      <ul>
+        <li><strong>Check NTP sync:</strong> <code>timedatectl status</code> &mdash; must show &ldquo;synchronized: yes&rdquo;</li>
+        <li><strong>Verify RTL-SDR detected:</strong> <code>rtl_test -t</code></li>
+        <li><strong>Check upconverter power:</strong> Is the LED on? Is it receiving 5V?</li>
+        <li><strong>Verify frequency offset:</strong> Confirm your upconverter&rsquo;s exact LO frequency matches the config</li>
+        <li><strong>Check wsprdaemon logs:</strong> <code>tail -f /tmp/wsprdaemon/*.log</code></li>
+        <li><strong>Check antenna:</strong> Is it connected? Is it outside? Tighten all SMA connectors</li>
+        <li><strong>Try 20m daytime:</strong> Most active band, easiest to get first spots</li>
+        <li><strong>Band propagation:</strong> Check <a href="https://wsprnet.org/drupal/wsprnet/map" target="_blank">WSPRnet map</a> to see if others are receiving on your target band</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--orange);">USB / Power Issues</h3>
+    <div class="card" style="border-color:var(--orange);">
+      <ul>
+        <li>Use the <strong>official Pi power supply</strong> (5V 3A for Pi 4/5)</li>
+        <li>Check for undervoltage: <code>dmesg | grep -i voltage</code></li>
+        <li>Use a <strong>powered USB hub</strong> if the upconverter draws power from USB</li>
+        <li>Prefer <strong>USB 2.0 ports</strong> on Pi 4/5 (black, not blue) &mdash; less noise on HF</li>
+        <li>Use a <strong>USB extension cable</strong> (1&ndash;2 m) to separate RTL-SDR + upconverter from Pi</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--purple);">Noisy HF Reception</h3>
+    <div class="card" style="border-color:var(--purple);">
+      <ul>
+        <li>RTL-SDR V1 is more susceptible to noise than V4 (plastic case, less shielding)</li>
+        <li><strong>USB extension cable</strong> (1&ndash;2 m) is the #1 fix &mdash; separates dongle from Pi CPU noise</li>
+        <li>Add <strong>ferrite chokes</strong> (snap-on) to USB cable, power cable, and coax</li>
+        <li>Wrap RTL-SDR in <strong>aluminum foil</strong> or put it in a metal enclosure for shielding</li>
+        <li>Keep antenna feed away from Pi, monitor, and power supply</li>
+        <li>If near AM broadcast towers, add a <strong>high-pass filter</strong> (cutoff ~1.8 MHz) at antenna input</li>
+        <li>Try lower gain: <code>RTL_SDR_GAIN="32.8"</code> in wsprdaemon.conf</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--blue);">High CPU / Temperature</h3>
+    <div class="card" style="border-color:var(--blue);">
+      <ul>
+        <li>Check: <code>htop</code> or <code>vcgencmd measure_temp</code></li>
+        <li>Use a heatsink or fan case for Pi 4/5</li>
+        <li>Reduce number of bands if CPU &gt; 80%</li>
+        <li>Pi OS Lite uses much less resources than Desktop</li>
+        <li>Pi 3B+ may struggle with 3+ bands &mdash; stick to 1&ndash;2 bands</li>
+      </ul>
+    </div>
+
+    <h3 style="color:var(--green);">Useful Monitoring Commands</h3>
+    <pre><code><span class="prompt">$</span> ./wsprdaemon.sh -s              <span class="comment"># wsprdaemon status</span>
+<span class="prompt">$</span> tail -f /tmp/wsprdaemon/*.log    <span class="comment"># live decoded spots</span>
+<span class="prompt">$</span> rtl_test -t                      <span class="comment"># test RTL-SDR dongle</span>
+<span class="prompt">$</span> timedatectl status               <span class="comment"># NTP sync check</span>
+<span class="prompt">$</span> vcgencmd measure_temp            <span class="comment"># CPU temperature</span>
+<span class="prompt">$</span> df -h                            <span class="comment"># disk space</span>
+<span class="prompt">$</span> uptime                           <span class="comment"># uptime &amp; load average</span>
+<span class="prompt">$</span> dmesg | tail -20                 <span class="comment"># recent kernel messages</span>
+<span class="prompt">$</span> lsusb                            <span class="comment"># list USB devices</span></code></pre>
+  </div>
+
+  <!-- ═══════════ QUICK REFERENCE ═══════════ -->
+  <div class="quick-ref" id="quickref">
+    <h2>Quick Reference &mdash; Complete Copy-Paste Commands</h2>
+    <p style="text-align:center; color:var(--text2); margin-bottom:16px;">
+      After flashing Pi OS Lite and connecting via SSH, run these commands in order:
+    </p>
+
+    <pre><code><span class="comment"># ══ 1. Update system ══</span>
+<span class="prompt">$</span> sudo apt update && sudo apt upgrade -y
+
+<span class="comment"># ══ 2. Install RTL-SDR drivers ══</span>
+<span class="prompt">$</span> sudo apt install -y rtl-sdr librtlsdr-dev
+
+<span class="comment"># ══ 3. Blacklist DVB-T driver ══</span>
+<span class="prompt">$</span> sudo bash -c 'cat > /etc/modprobe.d/blacklist-rtlsdr.conf &lt;&lt;EOF
+blacklist dvb_usb_rtl28xxu
+blacklist rtl2832
+blacklist rtl2830
+EOF'
+<span class="prompt">$</span> sudo reboot
+
+<span class="comment"># ══ 4. After reboot — verify RTL-SDR ══</span>
+<span class="prompt">$</span> rtl_test -t    <span class="comment"># should show "Found 1 device" + "R820T tuner"</span>
+
+<span class="comment"># ══ 5. Quick test with upconverter (20m, 125 MHz offset) ══</span>
+<span class="prompt">$</span> sudo apt install -y sox
+<span class="prompt">$</span> timeout 10 rtl_fm -f 139095600 -M usb -s 12000 -g 40 - | \
+    sox -t raw -r 12000 -e signed -b 16 -c 1 - -n stats
+<span class="comment"># Should show signal statistics. Ctrl+C to stop.</span>
+
+<span class="comment"># ══ 6. Install wsprdaemon dependencies ══</span>
+<span class="prompt">$</span> sudo apt install -y git build-essential libfftw3-dev \
+    libsamplerate0-dev libsndfile1-dev curl bc sox
+
+<span class="comment"># ══ 7. Clone and install wsprdaemon ══</span>
+<span class="prompt">$</span> cd ~
+<span class="prompt">$</span> git clone https://github.com/rrobinett/wsprdaemon.git
+<span class="prompt">$</span> cd wsprdaemon
+<span class="prompt">$</span> ./wsprdaemon.sh -i    <span class="comment"># takes 5-15 min on Pi 3/4</span>
+
+<span class="comment"># ══ 8. Configure (EDIT THESE VALUES!) ══</span>
+<span class="prompt">$</span> nano wsprdaemon.conf
+<span class="comment"># Set: MY_CALL="YOUR_CALL"</span>
+<span class="comment"># Set: MY_GRID="YOUR_GRID"</span>
+<span class="comment"># Set: RECEIVER_LIST=("RTL_V1  RTL-SDR  0  125000000")</span>
+<span class="comment">#                                          ^^^^^^^^^ your upconverter LO Hz</span>
+<span class="comment"># Set: WSPR_SCHEDULE=("RTL_V1  20m")</span>
+
+<span class="comment"># ══ 9. Verify NTP sync ══</span>
+<span class="prompt">$</span> timedatectl status   <span class="comment"># must show "synchronized: yes"</span>
+
+<span class="comment"># ══ 10. Start! ══</span>
+<span class="prompt">$</span> ./wsprdaemon.sh -a    <span class="comment"># start monitoring</span>
+<span class="prompt">$</span> ./wsprdaemon.sh -s    <span class="comment"># check status</span>
+<span class="prompt">$</span> tail -f /tmp/wsprdaemon/wsprd.log   <span class="comment"># watch live spots</span>
+
+<span class="comment"># ══ Check your spots at: https://wsprnet.org ══</span></code></pre>
+  </div>
+
+  <!-- ═══════════ LINKS ═══════════ -->
+  <div class="section">
+    <h2>Resources &amp; Links</h2>
+    <ul>
+      <li><a href="https://wsprnet.org" target="_blank">wsprnet.org</a> &mdash; WSPR spot database &amp; global map</li>
+      <li><a href="https://github.com/rrobinett/wsprdaemon" target="_blank">wsprdaemon (GitHub)</a> &mdash; all-in-one WSPR daemon</li>
+      <li><a href="https://wsjt.sourceforge.io" target="_blank">wsjt.sourceforge.io</a> &mdash; WSJT-X official site</li>
+      <li><a href="https://www.rtl-sdr.com" target="_blank">rtl-sdr.com</a> &mdash; RTL-SDR blog &amp; guides</li>
+      <li><a href="https://physics.princeton.edu/pulsar/K1JTE/wspr.html" target="_blank">K1JT WSPR</a> &mdash; WSPR protocol by Joe Taylor</li>
+      <li><a href="https://www.levinecentral.com/ham/grid_square.php" target="_blank">Grid Locator Lookup</a> &mdash; find your Maidenhead grid</li>
+      <li><a href="https://www.nooelec.com/store/ham-it-up-plus.html" target="_blank">NooElec Ham It Up</a> &mdash; popular HF upconverter</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  WSPR Listener Station &mdash; RTL-SDR V1 (R820T2) + HF Upconverter + Raspberry Pi &nbsp;|&nbsp;
+  Receive-only &mdash; No ham license required &nbsp;|&nbsp;
+  WSPR by K1JT &nbsp;|&nbsp;
+  <a href="https://wsprnet.org">wsprnet.org</a> &nbsp;|&nbsp;
+  <a href="https://github.com/rrobinett/wsprdaemon">wsprdaemon</a> &nbsp;|&nbsp;
+  HS2GJG &nbsp;|&nbsp;
+  2026-02-26
+</footer>
+
+</body>
+</html>
