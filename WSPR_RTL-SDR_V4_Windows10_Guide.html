@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTL-SDR V4 + WSPR on Windows 10 — Setup Guide</title>
+<style>
+  :root {
+    --bg: #0a0e17;
+    --card: #0d1525;
+    --card-hover: #111d33;
+    --border: #1a2a45;
+    --text: #c8d6e5;
+    --text2: #8395a7;
+    --white: #eef2f7;
+    --gold: #ffd93d;
+    --amber: #ffab40;
+    --red: #ff6b6b;
+    --green: #6bcb77;
+    --blue: #54a0ff;
+    --cyan: #4dd0e1;
+    --purple: #c084fc;
+    --teal: #26a69a;
+    --orange: #ff9f43;
+    --pink: #fd79a8;
+    --win-blue: #0078d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { text-decoration: underline; color: #74b9ff; }
+
+  /* ── Hero ── */
+  .hero {
+    background: linear-gradient(135deg, #0c1829 0%, #1a1a3e 40%, #2d1b4e 100%);
+    text-align: center;
+    padding: 50px 20px 40px;
+    border-bottom: 3px solid var(--gold);
+  }
+  .hero h1 {
+    font-size: 2.4rem;
+    background: linear-gradient(90deg, var(--gold), var(--red), var(--purple), var(--blue));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+  .hero .subtitle {
+    color: var(--text2);
+    font-size: 1.1rem;
+    max-width: 750px;
+    margin: 0 auto 14px;
+  }
+  .hero .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .hero .badge {
+    background: #1e3a5f;
+    color: var(--blue);
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 1px solid #2e5a8f;
+  }
+  .hero .badge.good {
+    background: #0a2a10;
+    color: var(--green);
+    border-color: #1a5a2a;
+  }
+  .hero .badge.win {
+    background: #001a3a;
+    color: var(--win-blue);
+    border-color: #0050a0;
+  }
+
+  /* ── Container ── */
+  .container { max-width: 920px; margin: 0 auto; padding: 24px 20px; }
+
+  /* ── TOC ── */
+  .toc {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+  .toc h2 { color: var(--gold); font-size: 1.2rem; margin-bottom: 12px; }
+  .toc ol { padding-left: 24px; }
+  .toc li { margin: 5px 0; }
+  .toc a { color: #74b9ff; }
+
+  /* ── Section ── */
+  .section { margin: 44px 0; }
+  .section h2 {
+    font-size: 1.55rem;
+    color: var(--gold);
+    border-left: 4px solid var(--gold);
+    padding-left: 14px;
+    margin-bottom: 16px;
+  }
+  .section h3 {
+    font-size: 1.15rem;
+    color: var(--purple);
+    margin: 20px 0 10px;
+  }
+  .section h4 {
+    font-size: 1rem;
+    color: var(--green);
+    margin: 14px 0 8px;
+  }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin: 14px 0;
+  }
+  .card.warning { border-color: #e67e22; background: #1a1508; }
+  .card.warning::before {
+    content: "⚠ WARNING";
+    display: block;
+    color: #e67e22;
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card.tip { border-color: var(--green); background: #0a1a10; }
+  .card.tip::before {
+    content: "💡 TIP";
+    display: block;
+    color: var(--green);
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card.info { border-color: #2980b9; background: #0a1525; }
+  .card.info::before {
+    content: "ℹ INFO";
+    display: block;
+    color: var(--blue);
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .card.critical { border-color: var(--red); background: #1a0a0a; }
+  .card.critical::before {
+    content: "🔴 CRITICAL";
+    display: block;
+    color: var(--red);
+    font-weight: bold;
+    font-size: 0.82rem;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  /* ── Code ── */
+  code {
+    background: #111a2e;
+    color: var(--green);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.9em;
+  }
+  pre {
+    background: #0a1020;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    margin: 12px 0;
+    font-size: 0.88rem;
+    line-height: 1.65;
+  }
+  pre code { background: none; padding: 0; }
+  .prompt { color: var(--blue); }
+  .comment { color: #546e7a; }
+  .highlight { color: var(--gold); }
+  .output { color: var(--green); }
+
+  /* ── Tables ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  th {
+    background: #111a2e;
+    color: var(--gold);
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid #2a3a55;
+  }
+  td {
+    padding: 8px 12px;
+    border-bottom: 1px solid #1a2535;
+  }
+  tr:hover td { background: #111a2e; }
+  .band { color: var(--purple); font-weight: 700; }
+  .freq { color: var(--gold); font-family: monospace; }
+
+  /* ── Diagram ── */
+  .diagram {
+    background: #0a0f1a;
+    border: 1px solid #1a3050;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 16px 0;
+    text-align: center;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    color: #74b9ff;
+    line-height: 2;
+    overflow-x: auto;
+    white-space: pre;
+  }
+
+  /* ── Grids ── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  @media (max-width: 650px) {
+    .two-col, .three-col { grid-template-columns: 1fr; }
+  }
+
+  .hw-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .hw-card .hw-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 4px;
+  }
+  .hw-card .hw-desc { color: var(--text2); font-size: 0.88rem; }
+  .hw-card .hw-price { color: var(--gold); font-weight: 700; margin-top: 6px; }
+
+  /* ── Download cards ── */
+  .dl-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .dl-card .dl-name { color: var(--gold); font-weight: 700; font-size: 1rem; margin-bottom: 4px; }
+  .dl-card .dl-desc { color: var(--text2); font-size: 0.82rem; margin-bottom: 10px; }
+  .dl-card a.dl-btn {
+    display: inline-block;
+    background: #1a3050;
+    color: var(--blue);
+    padding: 6px 18px;
+    border-radius: 6px;
+    border: 1px solid #2e5a8f;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .dl-card a.dl-btn:hover { background: #2a4060; text-decoration: none; }
+
+  /* ── Steps ── */
+  ol.steps { list-style: none; padding: 0; counter-reset: step; }
+  ol.steps > li {
+    counter-increment: step;
+    margin: 10px 0;
+    padding-left: 44px;
+    position: relative;
+  }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0; top: 2px;
+    background: linear-gradient(135deg, #2980b9, #1a5276);
+    color: #fff;
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+  }
+
+  /* ── Quick ref ── */
+  .quick-ref {
+    background: linear-gradient(135deg, #0c1829, #1a1a3e);
+    border: 2px solid var(--gold);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 30px 0;
+  }
+  .quick-ref h2 {
+    text-align: center;
+    color: var(--gold);
+    font-size: 1.5rem;
+    margin-bottom: 16px;
+    border: none;
+    padding: 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text2);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  footer a { color: var(--gold); }
+
+  ul { padding-left: 24px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  p { margin: 10px 0; }
+
+  @media (max-width: 650px) {
+    .hero h1 { font-size: 1.6rem; }
+    .section h2 { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HERO ═══════════ -->
+<header class="hero">
+  <h1>WSPR Listener Station<br>RTL-SDR V4 + Windows 10</h1>
+  <p class="subtitle">
+    Complete guide to receiving and decoding WSPR signals using an RTL-SDR Blog V4 dongle
+    with SDR# and WSJT-X on Windows 10, reporting spots to WSPRnet
+  </p>
+  <div class="badges">
+    <span class="badge">RTL-SDR Blog V4</span>
+    <span class="badge win">Windows 10</span>
+    <span class="badge">SDR# (SDRSharp)</span>
+    <span class="badge">WSJT-X</span>
+    <span class="badge good">Direct HF &mdash; No Upconverter</span>
+    <span class="badge">WSPRnet</span>
+    <span class="badge">No License Required</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ═══════════ TOC ═══════════ -->
+  <nav class="toc">
+    <h2>Table of Contents</h2>
+    <ol>
+      <li><a href="#overview">What is WSPR?</a></li>
+      <li><a href="#architecture">System Architecture</a></li>
+      <li><a href="#requirements">Required Hardware &amp; Software</a></li>
+      <li><a href="#v4-notes">RTL-SDR V4 Important Notes</a></li>
+      <li><a href="#step1">Step 1: Install Zadig USB Drivers</a></li>
+      <li><a href="#step2">Step 2: Install SDR# (SDRSharp)</a></li>
+      <li><a href="#step3">Step 3: Install VB-Cable (Virtual Audio)</a></li>
+      <li><a href="#step4">Step 4: Install WSJT-X</a></li>
+      <li><a href="#step5">Step 5: Synchronize PC Clock (NTP)</a></li>
+      <li><a href="#step6">Step 6: Configure SDR# for WSPR</a></li>
+      <li><a href="#step7">Step 7: Configure WSJT-X for WSPR</a></li>
+      <li><a href="#step8">Step 8: Register &amp; Report to WSPRnet</a></li>
+      <li><a href="#frequencies">WSPR Frequency Reference</a></li>
+      <li><a href="#antennas">Antenna Recommendations</a></li>
+      <li><a href="#advanced">Advanced: CAT Control &amp; Band Hopping</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#resources">Resources &amp; Links</a></li>
+    </ol>
+  </nav>
+
+  <!-- ═══════════ 1. OVERVIEW ═══════════ -->
+  <div class="section" id="overview">
+    <h2>1. What is WSPR?</h2>
+    <p><strong>WSPR</strong> (Weak Signal Propagation Reporter, pronounced &ldquo;whisper&rdquo;) is a digital protocol designed by
+       Joe Taylor, K1JT (Nobel laureate in Physics). It encodes a callsign, Maidenhead grid locator, and transmit power
+       into an ultra-narrowband signal (~6 Hz wide) transmitted in 2-minute cycles.</p>
+
+    <p>WSPR can decode signals at SNR as low as <strong>&minus;28 dB to &minus;31 dB</strong>, far below human hearing.
+       Decoded spots are uploaded to <a href="https://wsprnet.org" target="_blank">wsprnet.org</a> to build a real-time
+       global map of HF propagation.</p>
+
+    <div class="card info">
+      <strong>No ham radio license is required</strong> for receive-only WSPR monitoring. Register with an SWL
+      (Short Wave Listener) identifier on WSPRnet and contribute propagation data using just an RTL-SDR V4 dongle
+      and a simple antenna.
+    </div>
+  </div>
+
+  <!-- ═══════════ 2. ARCHITECTURE ═══════════ -->
+  <div class="section" id="architecture">
+    <h2>2. System Architecture</h2>
+    <p>The signal flows through this software pipeline on Windows:</p>
+
+    <div class="diagram">HF Antenna ──▶ RTL-SDR V4 ──▶ SDR# (USB demod) ──▶ VB-Cable ──▶ WSJT-X (WSPR decode) ──▶ WSPRnet
+                       │                                    │
+                 audio out = CABLE Input          audio in = CABLE Output</div>
+
+    <p>SDR# receives the raw RF signal via the RTL-SDR V4, demodulates it as USB (Upper Sideband) audio,
+       and routes it through a virtual audio cable (VB-Cable) to WSJT-X, which decodes the WSPR signals
+       and uploads spots to WSPRnet.</p>
+  </div>
+
+  <!-- ═══════════ 3. REQUIREMENTS ═══════════ -->
+  <div class="section" id="requirements">
+    <h2>3. Required Hardware &amp; Software</h2>
+
+    <h3>Hardware</h3>
+    <table>
+      <tr><th>Item</th><th>Details</th></tr>
+      <tr><td><strong>RTL-SDR Blog V4</strong></td><td>USB SDR dongle with R828D tuner, direct HF, TCXO, metal case (~$35)</td></tr>
+      <tr><td><strong>HF Antenna</strong></td><td>Random wire + 9:1 UnUn, dipole, magnetic loop, or active antenna</td></tr>
+      <tr><td><strong>SMA adapter/pigtail</strong></td><td>SMA male to your antenna connector</td></tr>
+      <tr><td><strong>USB extension cable</strong></td><td>1&ndash;2 m cable to distance dongle from PC noise (recommended)</td></tr>
+      <tr><td><strong>Windows 10 PC</strong></td><td>Any modern PC, modest CPU requirements</td></tr>
+    </table>
+
+    <h3>Software Downloads</h3>
+    <div class="three-col">
+      <div class="dl-card">
+        <div class="dl-name">Zadig</div>
+        <div class="dl-desc">USB driver installer for RTL-SDR</div>
+        <a class="dl-btn" href="https://zadig.akeo.ie/" target="_blank">Download</a>
+      </div>
+      <div class="dl-card">
+        <div class="dl-name">SDR# (SDRSharp)</div>
+        <div class="dl-desc">SDR receiver application</div>
+        <a class="dl-btn" href="https://airspy.com/download/" target="_blank">Download</a>
+      </div>
+      <div class="dl-card">
+        <div class="dl-name">VB-Cable</div>
+        <div class="dl-desc">Free virtual audio cable</div>
+        <a class="dl-btn" href="https://vb-audio.com/Cable/" target="_blank">Download</a>
+      </div>
+      <div class="dl-card">
+        <div class="dl-name">WSJT-X</div>
+        <div class="dl-desc">WSPR/FT8 decoder by K1JT</div>
+        <a class="dl-btn" href="https://wsjt.sourceforge.io/wsjtx.html" target="_blank">Download</a>
+      </div>
+      <div class="dl-card">
+        <div class="dl-name">.NET 8.0 x86 Runtime</div>
+        <div class="dl-desc">Required by SDR#</div>
+        <a class="dl-btn" href="https://dotnet.microsoft.com/download/dotnet/8.0" target="_blank">Download</a>
+      </div>
+      <div class="dl-card">
+        <div class="dl-name">Meinberg NTP</div>
+        <div class="dl-desc">Accurate PC clock sync</div>
+        <a class="dl-btn" href="https://www.meinbergglobal.com/english/sw/ntp.htm" target="_blank">Download</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════ 4. V4 NOTES ═══════════ -->
+  <div class="section" id="v4-notes">
+    <h2>4. RTL-SDR V4 Important Notes</h2>
+
+    <div class="card warning">
+      The RTL-SDR V4 has a <strong>built-in upconverter</strong> (not direct sampling like the V3).
+      <strong>Do NOT enable &ldquo;Direct Sampling&rdquo; mode</strong> in SDR# &mdash; it will produce no signal.
+      Simply tune to the HF frequency and it works automatically.
+    </div>
+
+    <table>
+      <tr><th>Feature</th><th>V4 Behavior</th></tr>
+      <tr><td><strong>HF Reception</strong></td><td>Built-in upconverter (SA612 mixer + 28.8 MHz LO). Just tune to any HF frequency.</td></tr>
+      <tr><td><strong>Direct Sampling</strong></td><td style="color:var(--red);"><strong>Do NOT enable.</strong> Leave disabled.</td></tr>
+      <tr><td><strong>&ldquo;Offset Tuning&rdquo; in SDR#</strong></td><td>Repurposed: controls the <strong>bias tee</strong> (4.5V output for active antennas). Not for tuning offset.</td></tr>
+      <tr><td><strong>IF AGC</strong></td><td style="color:var(--red);"><strong>Do NOT select</strong> IF AGC in SDR# &mdash; causes issues.</td></tr>
+      <tr><td><strong>Frequency Stability</strong></td><td>Built-in TCXO. PPM offset typically 0&ndash;1. Allow 30 min warm-up.</td></tr>
+      <tr><td><strong>HF Gain</strong></td><td>Adjustable via RF Gain slider (unlike V3 direct sampling which had no HF gain control).</td></tr>
+    </table>
+  </div>
+
+  <!-- ═══════════ STEP 1: ZADIG ═══════════ -->
+  <div class="section" id="step1">
+    <h2>Step 1: Install Zadig USB Drivers</h2>
+
+    <ol class="steps">
+      <li>Download <a href="https://zadig.akeo.ie/" target="_blank">Zadig</a> and plug in the RTL-SDR V4 dongle.</li>
+      <li><strong>Right-click Zadig &rarr; Run as Administrator.</strong></li>
+      <li>Go to <strong>Options &rarr; List All Devices</strong> and check it.</li>
+      <li>From the dropdown, select <strong>&ldquo;Bulk-In, Interface (Interface 0)&rdquo;</strong>.<br>
+          You may see &ldquo;RTL2832UHIDIR&rdquo;, &ldquo;RTL2832U&rdquo;, or &ldquo;Blog V4&rdquo; &mdash; all are valid.<br>
+          <strong>Verify USB ID shows <code>0BDA 2838 00</code></strong>.</li>
+      <li>Ensure <strong>WinUSB</strong> is selected as the target driver (right side).</li>
+      <li>Click <strong>&ldquo;Replace Driver&rdquo;</strong> and accept any publisher warnings.</li>
+    </ol>
+
+    <div class="card critical">
+      <strong>Do NOT select any device other than the RTL-SDR</strong> in Zadig&rsquo;s dropdown, or you will
+      overwrite that device&rsquo;s driver (mouse, keyboard, audio, etc.). Always verify the USB ID is <code>0BDA 2838</code>.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 2: SDR# ═══════════ -->
+  <div class="section" id="step2">
+    <h2>Step 2: Install SDR# (SDRSharp)</h2>
+
+    <ol class="steps">
+      <li>Install <strong>.NET 8.0 x86 Desktop Runtime</strong> and <strong>Visual C++ Redistributable (x86)</strong> from Microsoft.</li>
+      <li>Download <code>sdrsharp-x86.zip</code> from <a href="https://airspy.com/download/" target="_blank">airspy.com</a> (choose &ldquo;Software Defined Radio Package&rdquo;).</li>
+      <li>Extract to a folder like <code>C:\SDRSharp</code>.<br>
+          <strong>Do NOT extract into Program Files</strong> (becomes read-only).</li>
+      <li>Run <code>install-rtlsdr.bat</code> from the extracted folder to download the RTL-SDR driver files.</li>
+      <li>Launch <strong>SDRSharp.dotnet8.exe</strong>.</li>
+      <li>Click the hamburger menu (top-left) and set Source to <strong>&ldquo;RTL-SDR USB&rdquo;</strong>.</li>
+      <li>Press <strong>Play &#9654;</strong> to verify reception. You should see the spectrum waterfall.</li>
+      <li>Open the Source settings panel and increase <strong>RF Gain</strong> (default is zero).</li>
+    </ol>
+
+    <div class="card tip">
+      If SDR# doesn&rsquo;t detect the dongle, re-run Zadig. If you moved the dongle to a different USB port,
+      you may need to reinstall the driver for that port.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 3: VB-CABLE ═══════════ -->
+  <div class="section" id="step3">
+    <h2>Step 3: Install VB-Cable (Virtual Audio)</h2>
+
+    <ol class="steps">
+      <li>Download from <a href="https://vb-audio.com/Cable/" target="_blank">vb-audio.com/Cable</a>.</li>
+      <li>Extract the ZIP file.</li>
+      <li><strong>Right-click</strong> <code>VBCABLE_Setup_x64.exe</code> &rarr; <strong>Run as Administrator</strong>.</li>
+      <li>Follow the prompts to install.</li>
+      <li><strong>Restart Windows</strong> (the virtual audio devices won&rsquo;t appear until after reboot).</li>
+      <li>Verify: <strong>Settings &rarr; System &rarr; Sound</strong> &mdash; you should see &ldquo;CABLE Input&rdquo; and &ldquo;CABLE Output&rdquo;.</li>
+    </ol>
+
+    <div class="card info">
+      <strong>CABLE Input</strong> = the virtual microphone (SDR# sends audio here).<br>
+      <strong>CABLE Output</strong> = the virtual speaker (WSJT-X reads audio from here).<br>
+      They are internally connected &mdash; audio sent to CABLE Input appears on CABLE Output.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 4: WSJT-X ═══════════ -->
+  <div class="section" id="step4">
+    <h2>Step 4: Install WSJT-X</h2>
+
+    <ol class="steps">
+      <li>Download the latest version from <a href="https://wsjt.sourceforge.io/wsjtx.html" target="_blank">wsjt.sourceforge.io</a>.</li>
+      <li>Run the Windows installer (<code>wsjtx-X.X.X-win64.exe</code>).</li>
+      <li>Follow the installation prompts (default settings are fine).</li>
+      <li>Launch WSJT-X &mdash; it will open the Settings dialog on first run.</li>
+    </ol>
+  </div>
+
+  <!-- ═══════════ STEP 5: NTP ═══════════ -->
+  <div class="section" id="step5">
+    <h2>Step 5: Synchronize PC Clock (NTP)</h2>
+
+    <div class="card critical">
+      WSPR decoding <strong>requires your PC clock to be accurate within &plusmn;1&ndash;2 seconds of UTC</strong>.
+      The built-in Windows time sync only checks once per week, which is <strong>not sufficient</strong>.
+    </div>
+
+    <p>Install one of these NTP synchronization tools:</p>
+
+    <table>
+      <tr><th>Tool</th><th>Notes</th></tr>
+      <tr>
+        <td><a href="https://www.meinbergglobal.com/english/sw/ntp.htm" target="_blank"><strong>Meinberg NTP</strong></a></td>
+        <td>Recommended. Runs as background service, auto-starts on boot.</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.maniaradio.it/en/bkttimesync.html" target="_blank"><strong>BktTimeSync</strong></a></td>
+        <td>Lightweight, made for digital modes.</td>
+      </tr>
+      <tr>
+        <td><a href="http://www.dxshell.com/jtsync.html" target="_blank"><strong>JTSync</strong></a></td>
+        <td>Simple tool designed for WSJT-X users.</td>
+      </tr>
+      <tr>
+        <td><a href="https://www.timesynctool.com/" target="_blank"><strong>NetTime</strong></a></td>
+        <td>Keeps clock within milliseconds.</td>
+      </tr>
+    </table>
+
+    <p>After installation, verify accuracy by comparing with <a href="https://time.is/" target="_blank">time.is</a>.</p>
+
+    <div class="card tip">
+      <strong>Meinberg NTP</strong> is the best choice &mdash; it installs as a Windows service, syncs continuously,
+      and auto-starts on boot. Once installed, you never need to think about time again.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 6: CONFIGURE SDR# ═══════════ -->
+  <div class="section" id="step6">
+    <h2>Step 6: Configure SDR# for WSPR</h2>
+
+    <ol class="steps">
+      <li>Launch SDR# and select source <strong>&ldquo;RTL-SDR USB&rdquo;</strong>.</li>
+      <li>Set demodulation mode to <strong>USB</strong> (Upper Sideband).</li>
+      <li>Set filter bandwidth to <strong>2500 Hz</strong> (2.5 kHz).</li>
+      <li>Tune to a WSPR dial frequency, e.g., <strong>14.095600 MHz</strong> for 20m.</li>
+      <li>In Audio settings, change output to <strong>&ldquo;MME: CABLE Input (VB-Audio Virtual Cable)&rdquo;</strong>.</li>
+      <li>Adjust <strong>RF Gain</strong> until you see signals on the waterfall without overloading (green/yellow, not red).</li>
+      <li>Press <strong>Play &#9654;</strong> to begin receiving.</li>
+    </ol>
+
+    <div class="card tip">
+      WSPR signals appear within a narrow 200 Hz window at <strong>+1400 Hz to +1600 Hz</strong> from the dial frequency.
+      On the SDR# waterfall, you may see faint narrow traces during 2-minute transmission windows
+      (starting at even minutes: :00, :02, :04, etc.).
+    </div>
+
+    <div class="card warning">
+      Remember for V4: <strong>Do NOT enable Direct Sampling or IF AGC</strong>. Leave &ldquo;Offset Tuning&rdquo;
+      unchecked unless you want to enable the bias tee for an active antenna.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 7: CONFIGURE WSJT-X ═══════════ -->
+  <div class="section" id="step7">
+    <h2>Step 7: Configure WSJT-X for WSPR</h2>
+
+    <h3>General Settings</h3>
+    <ol class="steps">
+      <li>Open WSJT-X &rarr; <strong>File &rarr; Settings &rarr; General</strong> tab.</li>
+      <li>Enter your <strong>Callsign</strong> (or SWL identifier, e.g., &ldquo;SWL-YOURNAME&rdquo;).</li>
+      <li>Enter your <strong>Grid Locator</strong> (6-character Maidenhead, find yours at
+          <a href="https://www.levinecentral.com/ham/grid_square.php" target="_blank">levinecentral.com</a>).</li>
+    </ol>
+
+    <h3>Audio Settings</h3>
+    <ol class="steps">
+      <li>Go to <strong>File &rarr; Settings &rarr; Audio</strong> tab.</li>
+      <li>Set <strong>Input</strong> to: <code>CABLE Output (VB-Audio Virtual Cable)</code></li>
+      <li>Leave <strong>Output</strong> as your default speakers or &ldquo;None&rdquo;.</li>
+    </ol>
+
+    <h3>Radio Settings (Simple &mdash; No CAT)</h3>
+    <ol class="steps">
+      <li>Go to <strong>File &rarr; Settings &rarr; Radio</strong> tab.</li>
+      <li>Set <strong>Rig</strong> to: <code>None</code></li>
+      <li>You will manually tune SDR# to the correct WSPR frequency.</li>
+    </ol>
+
+    <h3>Start WSPR Mode</h3>
+    <ol class="steps">
+      <li>In the WSJT-X main window, select <strong>Mode &rarr; WSPR</strong>.</li>
+      <li>Select the <strong>Band</strong> from the dropdown (e.g., &ldquo;20m&rdquo;).</li>
+      <li>Set <strong>TX Pct</strong> to <strong>0</strong> (receive only!).</li>
+      <li>Check <strong>&ldquo;Upload spots&rdquo;</strong> to report decoded stations to WSPRnet.</li>
+      <li>Click <strong>Start</strong> to begin decoding.</li>
+    </ol>
+
+    <div class="card info">
+      WSJT-X decodes WSPR signals at the end of every 2-minute window. Decoded spots appear with
+      callsign, grid, power, SNR, and frequency offset. Spots are automatically uploaded to WSPRnet
+      if &ldquo;Upload spots&rdquo; is checked.
+    </div>
+  </div>
+
+  <!-- ═══════════ STEP 8: WSPRNET ═══════════ -->
+  <div class="section" id="step8">
+    <h2>Step 8: Register &amp; Report to WSPRnet</h2>
+
+    <ol class="steps">
+      <li>Go to <a href="https://wsprnet.org" target="_blank"><strong>wsprnet.org</strong></a> and click <strong>&ldquo;Create a new account&rdquo;</strong>.</li>
+      <li>Enter your <strong>callsign</strong> (or SWL identifier) and email address.</li>
+      <li>Verify your email and set a password.</li>
+      <li>In WSJT-X, ensure your callsign matches your WSPRnet account.</li>
+      <li>With <strong>&ldquo;Upload spots&rdquo;</strong> checked, spots are automatically reported every 2-minute cycle.</li>
+    </ol>
+
+    <h3>Viewing Your Spots</h3>
+    <ul>
+      <li><strong>WSPRnet Map:</strong> <a href="https://wsprnet.org" target="_blank">wsprnet.org</a> &rarr; Map &rarr; filter by your callsign</li>
+      <li><strong>WSPR Rocks:</strong> Modern alternative at <a href="https://wspr.rocks/" target="_blank">wspr.rocks</a></li>
+      <li><strong>DX Maps:</strong> Visual propagation at <a href="https://www.dxmaps.com/" target="_blank">dxmaps.com</a></li>
+    </ul>
+  </div>
+
+  <!-- ═══════════ FREQUENCIES ═══════════ -->
+  <div class="section" id="frequencies">
+    <h2>WSPR Frequency Reference</h2>
+
+    <p>Tune SDR# to the <strong>Dial Frequency</strong> (USB mode). WSPR signals appear at +1500 Hz from the dial.</p>
+
+    <table>
+      <tr><th>Band</th><th>Dial Freq (MHz)</th><th>TX Center (MHz)</th><th>Best Time</th></tr>
+      <tr><td class="band">160 m</td><td class="freq">1.836600</td><td class="freq">1.838100</td><td>Night</td></tr>
+      <tr><td class="band">80 m</td><td class="freq">3.568600</td><td class="freq">3.570100</td><td>Night</td></tr>
+      <tr><td class="band">60 m</td><td class="freq">5.287200</td><td class="freq">5.288700</td><td>Night / Dusk</td></tr>
+      <tr><td class="band">40 m</td><td class="freq">7.038600</td><td class="freq">7.040100</td><td>Night</td></tr>
+      <tr><td class="band">30 m</td><td class="freq">10.138700</td><td class="freq">10.140200</td><td>Day &amp; Night</td></tr>
+      <tr style="background:#1a2a10;"><td class="band" style="color:var(--gold);">20 m</td><td class="freq" style="color:var(--gold);">14.095600</td><td class="freq" style="color:var(--gold);">14.097100</td><td style="color:var(--gold);"><strong>Daytime (Start Here!)</strong></td></tr>
+      <tr><td class="band">17 m</td><td class="freq">18.104600</td><td class="freq">18.106100</td><td>Daytime</td></tr>
+      <tr><td class="band">15 m</td><td class="freq">21.094600</td><td class="freq">21.096100</td><td>Daytime</td></tr>
+      <tr><td class="band">12 m</td><td class="freq">24.924600</td><td class="freq">24.926100</td><td>Daytime</td></tr>
+      <tr><td class="band">10 m</td><td class="freq">28.124600</td><td class="freq">28.126100</td><td>Daytime</td></tr>
+    </table>
+
+    <div class="card tip">
+      <strong>Start with 20m during daytime.</strong> It is the most active WSPR band worldwide and the best
+      choice for initial testing and validation of your setup.
+    </div>
+  </div>
+
+  <!-- ═══════════ ANTENNAS ═══════════ -->
+  <div class="section" id="antennas">
+    <h2>Antenna Recommendations</h2>
+
+    <div class="two-col">
+      <div class="hw-card" style="border-color:var(--orange);">
+        <div class="hw-name" style="color:var(--orange);">Random Wire + 9:1 UnUn</div>
+        <div class="hw-desc">Easiest multi-band option. Run 10&ndash;20 m of insulated wire outside, as high as possible.
+          Connect via 9:1 UnUn balun to coax. Even a 5 m wire outdoors will decode WSPR worldwide on 20m.</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--blue);">
+        <div class="hw-name" style="color:var(--blue);">Dipole / Inverted-V</div>
+        <div class="hw-desc">Best for a single band. Total length = 468 / freq(MHz) in feet. A 20m dipole is ~33 ft total.
+          Hang as inverted-V from a single high point.</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--green);">
+        <div class="hw-name" style="color:var(--green);">Mini Whip / Active Antenna</div>
+        <div class="hw-desc">Compact for limited space. Mount outside away from noise. The V4&rsquo;s bias tee (4.5V) can power
+          it directly via the &ldquo;Offset Tuning&rdquo; checkbox in SDR#.</div>
+      </div>
+      <div class="hw-card" style="border-color:var(--purple);">
+        <div class="hw-name" style="color:var(--purple);">Magnetic Loop</div>
+        <div class="hw-desc">Best noise rejection for urban environments. Compact, can work indoors. Narrowband
+          (needs tuning per band). Excellent near electronics.</div>
+      </div>
+    </div>
+
+    <div class="card tip">
+      For WSPR receive-only, almost any wire antenna will work. The key is getting it
+      <strong>outside and away from electronic noise sources</strong>. A simple wire thrown over a tree branch
+      will outperform an indoor antenna every time.
+    </div>
+  </div>
+
+  <!-- ═══════════ ADVANCED ═══════════ -->
+  <div class="section" id="advanced">
+    <h2>Advanced: CAT Control &amp; Band Hopping</h2>
+
+    <p>For automatic multi-band monitoring, set up CAT (Computer Aided Transceiver) control so WSJT-X can retune SDR# automatically.</p>
+
+    <h3>Requirements</h3>
+    <ul>
+      <li><strong>com0com</strong> &mdash; Virtual serial port pair (<a href="https://sourceforge.net/projects/com0com/" target="_blank">Download</a>)</li>
+      <li><strong>SDR# Calico CAT plugin</strong> &mdash; Enables CAT control in SDR#</li>
+    </ul>
+
+    <h3>Setup</h3>
+    <ol class="steps">
+      <li>Install com0com and create a virtual port pair (e.g., <strong>COM11 &harr; COM12</strong>).</li>
+      <li>Install the Calico CAT plugin in SDR# (copy DLL, edit <code>Plugins.xml</code>).</li>
+      <li>In SDR#, enable Calico CAT and assign it to <strong>COM11</strong>.</li>
+      <li>In WSJT-X &rarr; Settings &rarr; Radio, set Rig to <strong>&ldquo;Kenwood TS-2000&rdquo;</strong>, port <strong>COM12</strong>, baud <strong>19200</strong>.</li>
+      <li>Click <strong>&ldquo;Test CAT&rdquo;</strong> to verify the green indicator lights up.</li>
+      <li>Enable <strong>Band Hopping</strong> in WSJT-X &rarr; Settings &rarr; Frequencies.</li>
+    </ol>
+
+    <div class="card info">
+      <strong>Alternative:</strong> SDR Console V3 has built-in CAT serial port support, eliminating the need for the
+      Calico plugin. It&rsquo;s a simpler setup if you prefer SDR Console over SDR#.
+    </div>
+  </div>
+
+  <!-- ═══════════ TROUBLESHOOTING ═══════════ -->
+  <div class="section" id="troubleshooting">
+    <h2>Troubleshooting</h2>
+
+    <table>
+      <tr><th>Problem</th><th>Solution</th></tr>
+      <tr><td><strong>SDR# doesn&rsquo;t detect dongle</strong></td><td>Re-run Zadig as Administrator. Verify USB ID <code>0BDA 2838</code>. Try a different USB port.</td></tr>
+      <tr><td><strong>No signal on HF</strong></td><td>Ensure &ldquo;Direct Sampling&rdquo; is <strong>OFF</strong> for V4. Increase RF Gain. Check antenna connection.</td></tr>
+      <tr><td><strong>WSJT-X shows no audio</strong></td><td>SDR# audio output &rarr; &ldquo;CABLE Input&rdquo;. WSJT-X audio input &rarr; &ldquo;CABLE Output&rdquo;. Restart both.</td></tr>
+      <tr><td><strong>No WSPR decodes</strong></td><td>Check clock accuracy (&plusmn;2s UTC). Verify USB mode at correct dial freq. Bandwidth ~2.5 kHz. Allow 30 min warm-up.</td></tr>
+      <tr><td><strong>Red DT values in WSJT-X</strong></td><td>PC clock is off. Install Meinberg NTP or BktTimeSync.</td></tr>
+      <tr><td><strong>Spots not on WSPRnet</strong></td><td>Check &ldquo;Upload spots&rdquo; is enabled. Callsign must match WSPRnet account. Check internet.</td></tr>
+      <tr><td><strong>Weak signals</strong></td><td>Move antenna outside. USB extension cable. Ferrite chokes. Increase RF Gain.</td></tr>
+      <tr><td><strong>Strong interference</strong></td><td>Reduce RF gain. Add bandpass filter. Distance dongle from PC and monitors.</td></tr>
+      <tr><td><strong>Bias tee for active antenna</strong></td><td>In SDR#, check &ldquo;Offset Tuning&rdquo; for 4.5V bias tee. Or: <code>rtl_biast -b 1</code></td></tr>
+    </table>
+  </div>
+
+  <!-- ═══════════ RESOURCES ═══════════ -->
+  <div class="section" id="resources">
+    <h2>Resources &amp; Links</h2>
+    <ul>
+      <li><a href="https://wsprnet.org" target="_blank">wsprnet.org</a> &mdash; WSPR spot database &amp; global map</li>
+      <li><a href="https://wspr.rocks/" target="_blank">wspr.rocks</a> &mdash; Modern WSPR spot viewer</li>
+      <li><a href="https://wsjt.sourceforge.io/wsjtx.html" target="_blank">wsjt.sourceforge.io</a> &mdash; WSJT-X download &amp; documentation</li>
+      <li><a href="https://www.rtl-sdr.com/v4/" target="_blank">rtl-sdr.com/v4</a> &mdash; RTL-SDR Blog V4 guide</li>
+      <li><a href="https://airspy.com/download/" target="_blank">airspy.com/download</a> &mdash; SDR# (SDRSharp)</li>
+      <li><a href="https://vb-audio.com/Cable/" target="_blank">vb-audio.com/Cable</a> &mdash; VB-Cable virtual audio</li>
+      <li><a href="https://zadig.akeo.ie/" target="_blank">zadig.akeo.ie</a> &mdash; Zadig USB driver tool</li>
+      <li><a href="https://www.meinbergglobal.com/english/sw/ntp.htm" target="_blank">meinbergglobal.com</a> &mdash; Meinberg NTP</li>
+      <li><a href="https://www.levinecentral.com/ham/grid_square.php" target="_blank">levinecentral.com</a> &mdash; Grid locator lookup</li>
+      <li><a href="https://sourceforge.net/projects/com0com/" target="_blank">com0com</a> &mdash; Virtual serial ports for CAT control</li>
+    </ul>
+  </div>
+
+</div>
+
+<!-- ═══════════ FOOTER ═══════════ -->
+<footer>
+  WSPR Listener Station &mdash; RTL-SDR Blog V4 + Windows 10 &nbsp;|&nbsp;
+  SDR# + VB-Cable + WSJT-X &nbsp;|&nbsp;
+  Direct HF &mdash; No Upconverter Needed &nbsp;|&nbsp;
+  Receive-only &mdash; No ham license required &nbsp;|&nbsp;
+  <a href="https://wsprnet.org">wsprnet.org</a> &nbsp;|&nbsp;
+  HS2GJG &nbsp;|&nbsp;
+  2026-02-26
+</footer>
+
+</body>
+</html>
